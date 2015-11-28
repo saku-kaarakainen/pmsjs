@@ -6,6 +6,8 @@
 	mines: 99
 };*/
 
+// TODO: make a rational object for  handling everything
+
 // Use this for now, that the game won't be so heavy
 var difficulty = {
 	name: "Beginner",
@@ -29,6 +31,14 @@ var game = new Phaser.Game(
 var minefield = null; // we will initialize this later
 var firstPress = true;
 var player;
+// A custom mouseUp, 
+// because apparently there's no proper handler in phaser
+var mouseUp = 0; 
+
+var position = {
+	x : null,
+	y : null
+};
 
 function preload() {
 	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
@@ -64,24 +74,42 @@ function update () {
 	drawBackground();
 
 	if(game.input.activePointer.isDown) {
-		console.log("game.input.onDown game.input.x: "+game.input.x);
-		kukkuu();
-	} else if(game.input.activePointer.isUp) {
-		// console.log("isUp. game.input.y"+game.input.y);
-	}
+		preCheckAnimation();
+		mouseUp = 1;
+	} else if( game.input.activePointer.isUp && mouseUp === 1 ) {
+		mouseUp = 0;
 
-	if(firstPress === true) {
-		firstPress = false;
+		if(firstPress === true) {
+			// on a first press, we must
+			// initialize minefield
+			firstPress = false;	
+			initializeMinefield(
+				difficulty.tilesX,
+				difficulty.tilesY,
+				difficulty.mines
+			);
+
+			checkNeighbour();
+		} else {
+			checkMinefield();
+		}
 	}	
 }
 
-function kukkuu(){
-	var pos = {
-		x : Math.floor(game.input.x / tileSize),
-		y : Math.floor(game.input.y / tileSize)
-	};
+function checkNeighbour() {
+	// TODO: in this function must check, is there mine in a neighbour
+}
 
-	player = game.add.sprite(pos.x*tileSize, pos.y*tileSize, "player");
+function checkMinefield() {
+	// TODO: this
+}
+
+function preCheckAnimation(){
+	// Update position
+	position.x = Math.floor(game.input.x / tileSize) * tileSize;
+	position.y = Math.floor(game.input.y / tileSize) * tileSize;
+
+	player = game.add.sprite(position.x, position.y, "player");
 	player.loadTexture("nolla");
 }
 
@@ -107,11 +135,26 @@ function initializeMinefield(width, height, amountOfMines) {
 		minefield[j] = 0;
 	}
 
-	// shuffles the minefield.
-	minefield = shuffle(minefield);
+	// forever-loop  isn't maybe  the most elegant solution
+	// but it works atleast
+	while(1) {
+		// shuffles the minefield.
+		minefield = shuffle(minefield);
+		
+		// convert minefield to multidimensional array
+		minefield = listToMatrix(minefield, height);
 
-	// convert minefield to multidimensional array
-	minefield = listToMatrix(minefield, height);
+		// So this loop works in a way where
+		// if the current position includes a mine
+		// we must shuffle again the array
+		if( minefield[position.x][position.y] === 1 ) break;
+
+		//  In this point the loop hasn't broke,
+		// so we have to roll back an array to one-dimensioanal
+		// a.k.a. we must flatten the array
+		// https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays-in-javascript
+		minefield = [].concat.apply([], minefield);
+	}
 }
 
 function drawBackground(){
