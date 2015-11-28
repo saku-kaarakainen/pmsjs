@@ -1,0 +1,24 @@
+/**
+ * General rules
+ */
+* {
+	padding: 0;
+	margin: 0;
+}
+
+/**
+ * Rules for canvas
+ */
+canvas {
+	background: #009933;
+	display: block;
+	margin: 0 auto;
+}
+
+/**
+ * Styles defined by id
+ */
+ #menu {
+ 	display: block;
+ 	margin: 0 auto;
+ }
