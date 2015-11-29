@@ -96,7 +96,8 @@ function create() {
 //player.visible = false,:
 
 function update () {
-	//draw();	
+	console.log("function update");
+	draw();	
 
 	if(game.input.activePointer.isDown) {
 		preCheckAnimation();
@@ -273,20 +274,17 @@ function getIndex(variable) {
 }
 
 function draw() {
-	var counter = 0;
+	minefield.area.destroy();
+	minefield.area = game.add.group();
+
 	for(var i=0; i<minefield.tiles.countX; i++) {
 		for(var j=0; j<minefield.tiles.countY; j++) {
-
 			var name = minefield.sprites[ getIndex(minefield.answerArray[i][j]) ].name;
-
 			minefield.area.create(
 				i*minefield.tiles.sizeInCanvas, 
 				j*minefield.tiles.sizeInCanvas,
-				name,
-				counter++
-				);
-
-			counter++;
+				name
+			);
 		}
 	}
 }
