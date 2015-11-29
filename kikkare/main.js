@@ -53,7 +53,6 @@ var firstPress = true;
 var mouseUp = 0;
 
 function preload() {
-	console.log("preload");
 	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 	game.scale.pageAlignHorizontally = true;
 	game.scale.pageAlignVertically = true;
@@ -88,13 +87,10 @@ function create() {
 
 	minefield.player = game.add.sprite(0, 0, "player");
 	minefield.player.loadTexture("nolla");
-	minefield.player.visible = false;
+	//minefield.player.visible = false;
 }
 
-//player.visible = false,:
-
 function update () {
-	console.log("function update");
 	draw();	
 
 	if(game.input.activePointer.isDown) {
@@ -102,7 +98,7 @@ function update () {
 		mouseUp = 1;
 	} else if( game.input.activePointer.isUp && mouseUp === 1 ) {
 		mouseUp = 0;
-		minefield.player.visible = false;
+		//minefield.player.visible = false;
 
 		if(firstPress === true) {
 			// on a first press, we must
@@ -113,12 +109,32 @@ function update () {
 				minefield.tiles.countY,
 				minefield.mineCount
 			);
+
+			//first 'commit' to answerArray
+			openNeighbours();
+
 		} else if(minefield.mineArray[minefield.position.x][minefield.position.y] === 1) {
 			alert("Game Over\nOops, you died. :(\nPress F5 to continue.");
 			// TODO: Stop script
 		} 
 
 		openHatch();
+		console.log("answerArray:");
+		console.log(minefield.answerArray);
+	}
+}
+
+// this algorithm should run everytime when player hit blank
+function openNeighbours() {
+	var posx = minefield.position.x;
+	var posy = minefield.position.y;
+
+	while( typeof(posx) !== "undefined" && typeof(posy) !== "undefined" )
+	{
+		posy--;
+		posx--;
+
+		break;
 	}
 }
 
@@ -184,7 +200,7 @@ function initializeMinefield(width, height, amountOfMines) {
 }
 
 /**
- * Generate sweeperArray and intialize answerArray
+ * Generate sweeperArray from mineArray
  */
 function generateSweeperArray() {
 	minefield.sweeperArray = new Array(minefield.tiles.countX);
@@ -268,7 +284,7 @@ function generateSweeperArray() {
 function getIndex(variable) {
 	return typeof(variable) === "number" 
 		? variable
-		: 11; // tässä pitää tietää vielä enemmän juttuja
+		: 11; // tässä pitää tietää
 }
 
 function draw() {

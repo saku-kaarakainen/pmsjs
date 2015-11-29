@@ -72,7 +72,6 @@ function initialize2DArray(i_length, j_length, init_value) {
 		}
 	}
 
-	console.log(array);
 	return array;
 }
 
