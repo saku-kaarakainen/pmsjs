@@ -9,10 +9,28 @@ var minefield = {
 	mineCount : 10,
 	mineArray : null, // We will initialize this later
 	sweeperArray : null,
+	answerArray : null,
 	position : { x : null, y : null },
-	realPosition : { x : null, y : null}
+	realPosition : { x : null, y : null},
+	sprites : [
+		{ name : "nolla",   location : "img/0.png" },          // 0
+		{ name : "eka",     location : "img/1.png" },          // 1
+		{ name : "toka",    location : "img/2.png" },          // 2
+		{ name : "kolmas",  location : "img/3.png" },          // 3
+		{ name : "neljas",  location : "img/4.png" },          // 4
+		{ name : "viides",  location : "img/5.png" },          // 5
+		{ name : "kuudes",  location : "img/6.png" },          // 6
+		{ name : "seiska",  location : "img/7.png" },          // 7
+		{ name : "kasi",    location : "img/8.png" },          // 8
+		{ name : "blank",   location : "img/unpressed.png" },  // 9
+		{ name : "tonni",   location : "img/burana1000.png" }, // 10
+		{ name : "caps",    location : "img/buranaCaps.png" }, // 11
+		{ name : "lippu",   location : "img/flag.png" },       // 12
+		{ name : "kyssari", location : "img/wat.png" }         // 13
+	]
 };
 
+// these have to do before preload
 minefield.tiles.totalWidth = minefield.tiles.countX * minefield.tiles.sizeInCanvas;
 minefield.tiles.totalHeight = minefield.tiles.countY * minefield.tiles.sizeInCanvas
 
@@ -30,39 +48,34 @@ var firstPress = true;
 var player;
 // A custom mouseUp, 
 // because apparently there's no proper handler in phaser
-var mouseUp = 0; 
+var mouseUp = 0;
 
 function preload() {
+	console.log("preload");
 	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 	game.scale.pageAlignHorizontally = true;
 	game.scale.pageAlignVertically = true;
 	game.state.backgroundColor = "#009933";
 
-	// load all images
-	game.load.image("blank",  "img/unpressed.png");
-	game.load.image("nolla",  "img/0.png");
-	/*game.load.image("eka",    "img/1.png");
-	game.load.image("toka",   "img/2.png");
-	game.load.image("kolmas", "img/3.png");
-	game.load.image("neljas", "img/4.png");
-	game.load.image("viides", "img/5.png");
-	game.load.image("kuudes", "img/6.png");
-	game.load.image("seiska", "img/7.png");
-	game.load.image("kasi",   "img/8.png");
-	game.load.image("ysi",    "img/9.png");
-	game.load.image("tonni",  "img/burana1000.png");
-	game.load.image("caps",   "img/buranaCaps.png");
-	game.load.image("lippu",  "img/flag.png");
-	game.load.image("kyssari","img/wat.png");*/
+	for(var i=0; i<minefield.sprites.length; i++) {
+		game.load.image(minefield.sprites[i].name, minefield.sprites[i].location);
+	}
+
+	// this array will initialises with value 9
+	// because the correct sprites will pick by minefield.sprites' index
+	// and the 9 indicate there sprite "blank" 
+	minefield.answerArray = initialize2DArray(minefield.tiles.countX,minefield.tiles.countY, 9);
 }
 
 function create() {
+	console.log("create");
 	// At the begin there no need anything but background
 	drawBackground();
 }
 
 function update () {
-	drawBackground();
+	console.log("update");
+	draw();	
 
 	if(game.input.activePointer.isDown) {
 		preCheckAnimation();
@@ -73,25 +86,17 @@ function update () {
 		if(firstPress === true) {
 			// on a first press, we must
 			// initialize minefield
-			firstPress = false;	
+			firstPress = false;
 			initializeMinefield(
 				minefield.tiles.countX,
 				minefield.tiles.countY,
 				minefield.mineCount
 			);
-
-			checkNeighbour();
 		} else if(minefield.mineArray[minefield.position.x][minefield.position.y] === 1) {
 			alert("Game Over\nOops, you died. :(\nPress F5 to continue.");
-		} else {
-			checkNeighbour();
-		}
-	}	
-}
-
-function checkNeighbour() {
-	// TODO: in this function must check, is there mine in a neighbour
-
+			// TODO: Stop script
+		} 
+	}
 }
 
 function preCheckAnimation() {
@@ -148,63 +153,62 @@ function initializeMinefield(width, height, amountOfMines) {
 		minefield.mineArray = [].concat.apply([], minefield.mineArray);
 	}
 
-	minefield.sweeperArray = generateSweeperArray(minefield.mineArray);
+	generateSweeperArray();
 }
 
-function generateSweeperArray(array) {
-	console.log("array:");
-	console.log(array);
-
-	var sweeperArray = new Array(array.length);
+/**
+ * Generate sweeperArray and intialize answerArray
+ */
+function generateSweeperArray() {
+	minefield.sweeperArray = new Array(minefield.tiles.countX);
 	
 	// the border values
 	var pos = {
 		min : { x : 0, y : 0 },
-		max : { x : array.length, y : null },
+		max : { x : minefield.mineArray.length, y : null },
 	};
 
 
 	// Initialise sweeperArray
 	// after the initialising sweeperArray is filled with zeroes,
 	// but the points where mine is located, contains char "x".
-	for(var i=0; i<array.length; i++) {
+	for(var i=0; i<pos.max.x; i++) {
 		// Calculate array[i][j] border
 		// When we calculate max here,
 		// the area doesn't have to be regular form
-		// Also I think, using pos.max.y is faster than array[i].length
+		// Also I think, using pos.max.y is faster than minefield.mineArray[i].length
 		// (it might recalculate it everytime?)
-		pos.max.y = array[i].length;
+		pos.max.y = minefield.mineArray[i].length;
 
 		// define sub array
-		sweeperArray[i] = new Array(pos.max.y);
-
+		minefield.sweeperArray[i] = new Array(pos.max.y);
 
 		for(var j=0; j<pos.max.y; j++) {
 			// initialize sweeper array with zeroes
-			sweeperArray[i][j] = 0;
+			minefield.sweeperArray[i][j] = 0;
 
 			// check if the [i][j] position contains a mine
-			if(array[i][j] === 1) {
+			if(minefield.mineArray[i][j] === 1) {
 				// convert value to string
 				// mines will convert to string, because when you
 				// raise a value in javascript which is string,
 				// it keeps as string, naturaly.
 				// And if you raise an integer value in javascript,
 				// it will raise as it should rise
-				sweeperArray[i][j] = "x"; 
+				minefield.sweeperArray[i][j] = "x"; 
 			}
 		}
 	}
 
 	// now raise the neighbours
-	for(var i=0; i<sweeperArray.length; i++) {
-		pos.max.y = sweeperArray[i].length;
+	for(var i=0; i<minefield.sweeperArray.length; i++) {
+		pos.max.y = minefield.sweeperArray[i].length;
 
-		for(var j=0; j<sweeperArray[i].length; j++)
+		for(var j=0; j<minefield.sweeperArray[i].length; j++)
 		{
 			// skip numbers
 			// because the strings are mines, whose neighbours we want raise
-			if( typeof(sweeperArray[i][j]) === "number" ) continue;
+			if( typeof(minefield.sweeperArray[i][j]) === "number" ) continue;
 
 			var valueArray_i = [i-1, i, i+1];
 			var valueArray_j = [j-1, j, j+1];
@@ -212,9 +216,9 @@ function generateSweeperArray(array) {
 			for(var k=0; k<valueArray_i.length; k++) {
 				for(var l=0; l<valueArray_j.length; l++) {
 					// raise neighbour values if they exists
-					if( typeof(sweeperArray[ valueArray_i[k]]) !== "undefined" &&
-						typeof(sweeperArray[ valueArray_i[k] ][ valueArray_j[l] ]) !== "undefined" ) {
-						sweeperArray[ valueArray_i[k] ][ valueArray_j[l] ] += 1;
+					if( typeof(minefield.sweeperArray[ valueArray_i[k]]) !== "undefined" &&
+						typeof(minefield.sweeperArray[ valueArray_i[k] ][ valueArray_j[l] ]) !== "undefined" ) {
+						minefield.sweeperArray[ valueArray_i[k] ][ valueArray_j[l] ] += 1;
 					}
 
 					/*
@@ -222,19 +226,36 @@ function generateSweeperArray(array) {
 					var ik = valueArray_i[k];
 					var jl = valueArray_j[l];
 
-					if( typeof(sweeperArray[ik]) !== "undefined"
-					&& typeof(sweeperArray[ik][jl] !== "undefined") {
-						sweeperArray[ik][jl] += 1;
-						sweeperArray[ik][jl]++; // this one causes NaN instead of String
+					if( typeof(minefield.sweeperArray[ik]) !== "undefined"
+					&& typeof(minefield.sweeperArray[ik][jl] !== "undefined") {
+						minefield.sweeperArray[ik][jl] += 1;
+						minefield.sweeperArray[ik][jl]++; // this one causes NaN instead of String
 					}
 					*/
 				}
 			}
 		}
 	}
+}
 
-	console.log("sweeperArray:");
-	console.log(sweeperArray);
+function getIndex(variable) {
+	return typeof(variable) === "number" 
+		? variable
+		: 11; // tässä pitää tietää vielä enemmän juttuja
+}
+
+function draw() {
+	for(var i=0; i<minefield.tiles.countX; i++) {
+		for(var j=0; j<minefield.tiles.countY; j++) {
+			var _width  = i*minefield.tiles.sizeInCanvas;
+			var _height = j*minefield.tiles.sizeInCanvas;
+			var name    = minefield.sprites[ getIndex(minefield.answerArray[i][j]) ].name;
+
+			var tile = game.add.sprite( _width, _height, name );
+
+			tile.loadTexture(name);
+		}
+	}
 }
 
 function drawBackground(){
@@ -245,6 +266,23 @@ function drawBackground(){
 				j*minefield.tiles.sizeInCanvas, 
 				"blank"
 			);
+		}
+	}
+}
+
+function cheat() {
+	for(var i=0; i<minefield.tiles.countX; i++) {
+		for(var j=0; j<minefield.tiles.countY; j++) {
+			var index = typeof(minefield.sweeperArray[i][j]) === "number"
+					? minefield.sweeperArray[i][j]
+					: 10; // tässä pitää tietää juttuja
+						
+				var tile = game.add.sprite(
+				i*minefield.tiles.sizeInCanvas, 
+				j*minefield.tiles.sizeInCanvas, 
+				minefield.sprites[index].name
+			);
+			tile.loadTexture(minefield.sprites[index].name);
 		}
 	}
 }

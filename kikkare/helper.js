@@ -12,8 +12,71 @@
 // Poul-Henning Kamp
 // ----------------------------------------------------------------------------
 
+// https://stackoverflow.com/questions/5129624/convert-js-date-time-to-mysql-datetime
+function dateToSQLTimestamp(date) {
+	return   date.getUTCFullYear()              + "-" +
+	( "00" + (date.getUTCMonth()+1) ).slice(-2) + "-" +
+	( "00" + date.getUTCDate()    )  .slice(-2) + " " +
+	( "00" + date.getUTCHours()   )  .slice(-2) + ":" +
+	( "00" + date.getUTCMinutes() )  .slice(-2) + ":" +
+	( "00" + date.getUTCSeconds() )  .slice(-2);
+}
 
- /**
+// Custom console.log(). Puts timestamp before logging to console.log
+// https://stackoverflow.com/questions/16259711/how-can-i-override-console-log-and-append-a-word-at-the-beginning-of-the-outpu
+if( window.console && console.log ) {
+	var tmp = console.log;
+
+	console.log = function() {
+		var date = new Date();
+		Array.prototype.unshift.call(arguments, "["+dateToSQLTimestamp(date)+"]: ");
+		tmp.apply(this, arguments);
+	};
+}
+
+
+/**
+ * Invalid paramer exeption
+ *
+ * @param string message
+ */
+function InvalidParameterException(message) {
+	this.message = message;
+	this.name = "invalidParameterException";
+}
+
+/**
+ * Initialises 2D array.
+ * 
+ * @param  int   i_length   - length of an array
+ * @param  int   j_lenght   - length of a sub array
+ * @param  int   init_value - (optional). Init value
+ * @return array            - generated 2D array
+ * @throws InvalidParameterException
+ */
+function initialize2DArray(i_length, j_length, init_value) {
+	if(typeof(j_length) === "undefined") {
+		throw new InvalidParameterException("function initialize2DArray must have atleast two variable");
+	}
+
+	if(typeof(init_value) === "undefined") {
+		init_value = 0;
+	}
+
+	var array = new Array(i_length);
+
+	for(var i=0; i<minefield.tiles.countX; i++) {
+		array[i] = new Array(j_length);
+		for(var j=0; j<minefield.tiles.countY; j++) {
+			array[i][j] = init_value;
+		}
+	}
+
+	console.log(array);
+	return array;
+}
+
+/**
  * Shuffles an array. Uses Fisher-Yates Shuffle
  * https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
  * @param array array - An array which you want to be shuffled
