@@ -173,7 +173,7 @@ function initializeMinefield(width, height, amountOfMines) {
 		// So this loop works in a way where
 		// if the current position includes a mine
 		// we must shuffle again the array
-		if( minefield.mineArray[minefield.position.x][minefield.position.y] === 1 ) break;
+		if( minefield.mineArray[minefield.position.x][minefield.position.y] === 0 ) break;
 
 		//  In this point the loop hasn't broke,
 		// so we have to roll back an array to one-dimensioanal
