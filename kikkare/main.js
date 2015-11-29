@@ -10,8 +10,6 @@ var minefield = {
 	mineArray : null, // We will initialize this later
 	sweeperArray : null,
 	answerArray : null,
-	player : null,
-	area : null,
 	position : { x : null, y : null },
 	realPosition : { x : null, y : null},
 	sprites : [
@@ -47,7 +45,7 @@ var game = new Phaser.Game(
 });
 
 var firstPress = true;
-
+var player;
 // A custom mouseUp, 
 // because apparently there's no proper handler in phaser
 var mouseUp = 0;
@@ -70,40 +68,20 @@ function preload() {
 }
 
 function create() {
+	console.log("create");
 	// At the begin there no need anything but background
-
-	minefield.area = game.add.group();
-
-	// draws background
-	var counter = 0;
-	for(var i=0; i<minefield.tiles.countX; i++) {
-		for(var j=0; j<minefield.tiles.countY; j++) {
-			minefield.area.create(
-				i*minefield.tiles.sizeInCanvas, 
-				j*minefield.tiles.sizeInCanvas, 
-				"blank",
-				counter++
-			);
-
-		}
-	}
-
-	minefield.player = game.add.sprite(0, 0, "player");
-	minefield.player.loadTexture("nolla");
-	minefield.player.visible = false;
+	drawBackground();
 }
 
-//player.visible = false,:
-
 function update () {
-	//draw();	
+	console.log("update");
+	draw();	
 
 	if(game.input.activePointer.isDown) {
 		preCheckAnimation();
 		mouseUp = 1;
 	} else if( game.input.activePointer.isUp && mouseUp === 1 ) {
 		mouseUp = 0;
-		minefield.player.visible = false;
 
 		if(firstPress === true) {
 			// on a first press, we must
@@ -133,9 +111,11 @@ function preCheckAnimation() {
 	// Update position
 	minefield.position.x = Math.floor(game.input.x / minefield.tiles.sizeInCanvas);
 	minefield.position.y = Math.floor(game.input.y / minefield.tiles.sizeInCanvas);
-	minefield.player.position.x = minefield.position.x * minefield.tiles.sizeInCanvas;
-	minefield.player.position.y = minefield.position.y * minefield.tiles.sizeInCanvas;
-	minefield.player.visible = true;
+	minefield.realPosition.x = minefield.position.x * minefield.tiles.sizeInCanvas;
+	minefield.realPosition.y = minefield.position.y * minefield.tiles.sizeInCanvas;
+
+	player = game.add.sprite(minefield.realPosition.x, minefield.realPosition.y, "player");
+	player.loadTexture("nolla");
 }
 
 /**
@@ -273,20 +253,26 @@ function getIndex(variable) {
 }
 
 function draw() {
-	var counter = 0;
 	for(var i=0; i<minefield.tiles.countX; i++) {
 		for(var j=0; j<minefield.tiles.countY; j++) {
+			var _width  = i*minefield.tiles.sizeInCanvas;
+			var _height = j*minefield.tiles.sizeInCanvas;
+			var name    = minefield.sprites[ getIndex(minefield.answerArray[i][j]) ].name;
+			var tile = game.add.sprite( _width, _height, name );
 
-			var name = minefield.sprites[ getIndex(minefield.answerArray[i][j]) ].name;
+			tile.loadTexture(name);
+		}
+	}
+}
 
-			minefield.area.create(
+function drawBackground(){
+	for(var i=0; i<minefield.tiles.countX; i++) {
+		for(var j=0; j<minefield.tiles.countY; j++) {
+			var tile = game.add.sprite(
 				i*minefield.tiles.sizeInCanvas, 
-				j*minefield.tiles.sizeInCanvas,
-				name,
-				counter++
-				);
-
-			counter++;
+				j*minefield.tiles.sizeInCanvas, 
+				"blank"
+			);
 		}
 	}
 }
