@@ -96,7 +96,15 @@ function update () {
 			alert("Game Over\nOops, you died. :(\nPress F5 to continue.");
 			// TODO: Stop script
 		} 
+
+		openHatch();
 	}
+}
+
+function openHatch() {
+	var i = minefield.position.x;
+	var j = minefield.position.y;
+	minefield.answerArray[i][j] = minefield.sweeperArray[i][j];
 }
 
 function preCheckAnimation() {
@@ -250,7 +258,6 @@ function draw() {
 			var _width  = i*minefield.tiles.sizeInCanvas;
 			var _height = j*minefield.tiles.sizeInCanvas;
 			var name    = minefield.sprites[ getIndex(minefield.answerArray[i][j]) ].name;
-
 			var tile = game.add.sprite( _width, _height, name );
 
 			tile.loadTexture(name);
