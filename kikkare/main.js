@@ -75,14 +75,12 @@ function create() {
 	minefield.area = game.add.group();
 
 	// draws background
-	var counter = 0;
 	for(var i=0; i<minefield.tiles.countX; i++) {
 		for(var j=0; j<minefield.tiles.countY; j++) {
 			minefield.area.create(
 				i*minefield.tiles.sizeInCanvas, 
 				j*minefield.tiles.sizeInCanvas, 
-				"blank",
-				counter++
+				"blank"
 			);
 
 		}
@@ -170,10 +168,12 @@ function initializeMinefield(width, height, amountOfMines) {
 		// convert minefield to multidimensional array
 		minefield.mineArray = listToMatrix(minefield.mineArray, height);
 
+		generateSweeperArray();
+
 		// So this loop works in a way where
 		// if the current position includes a mine
 		// we must shuffle again the array
-		if( minefield.mineArray[minefield.position.x][minefield.position.y] === 0 ) break;
+		if( minefield.sweeperArray[minefield.position.x][minefield.position.y] === 0 ) break;
 
 		//  In this point the loop hasn't broke,
 		// so we have to roll back an array to one-dimensioanal
@@ -181,8 +181,6 @@ function initializeMinefield(width, height, amountOfMines) {
 		// https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays-in-javascript
 		minefield.mineArray = [].concat.apply([], minefield.mineArray);
 	}
-
-	generateSweeperArray();
 }
 
 /**
@@ -285,23 +283,6 @@ function draw() {
 				j*minefield.tiles.sizeInCanvas,
 				name
 			);
-		}
-	}
-}
-
-function cheat() {
-	for(var i=0; i<minefield.tiles.countX; i++) {
-		for(var j=0; j<minefield.tiles.countY; j++) {
-			var index = typeof(minefield.sweeperArray[i][j]) === "number"
-					? minefield.sweeperArray[i][j]
-					: 10; // tässä pitää tietää juttuja
-						
-				var tile = game.add.sprite(
-				i*minefield.tiles.sizeInCanvas, 
-				j*minefield.tiles.sizeInCanvas, 
-				minefield.sprites[index].name
-			);
-			tile.loadTexture(minefield.sprites[index].name);
 		}
 	}
 }
