@@ -7,9 +7,10 @@ var minefield = {
 		totalHeight: null
 	},
 	mineCount : 10,
-	mineArray : null, // We will initialize this later
+	mineArray : null, // TODO: remove this
 	sweeperArray : null,
 	answerArray : null,
+	freeSpaceLeft : null,
 	player : null,
 	area : null,
 	position : { x : null, y : null },
@@ -25,10 +26,10 @@ var minefield = {
 		{ name : "seiska",  location : "img/7.png" },          // 7
 		{ name : "kasi",    location : "img/8.png" },          // 8
 		{ name : "blank",   location : "img/unpressed.png" },  // 9
-		{ name : "tonni",   location : "img/burana1000.png" }, // 10
-		{ name : "caps",    location : "img/buranaCaps.png" }, // 11
-		{ name : "lippu",   location : "img/flag.png" },       // 12
-		{ name : "kyssari", location : "img/wat.png" }         // 13
+		{ name : "lippu",   location : "img/flag.png" },       // 10
+		{ name : "kyssari", location : "img/wat.png" },        // 11
+		{ name : "tonni",   location : "img/burana1000.png" }, // 12
+		{ name : "caps",    location : "img/buranaCaps.png" }  // 13
 	]
 };
 
@@ -66,6 +67,7 @@ function preload() {
 	// because the correct sprites will pick by minefield.sprites' index
 	// and the 9 indicate there sprite "blank" 
 	minefield.answerArray = initialize2DArray(minefield.tiles.countX,minefield.tiles.countY, 9);
+	minefield.freeSpaceLeft = (minefield.tiles.countX*minefield.tiles.countY) - minefield.mineCount;
 }
 
 function create() {
@@ -111,33 +113,70 @@ function update () {
 			);
 
 			//first 'commit' to answerArray
-			openNeighbours();
+			//openNeighbours();
 
-		} else if(minefield.mineArray[minefield.position.x][minefield.position.y] === 1) {
-			alert("Game Over\nOops, you died. :(\nPress F5 to continue.");
-			// TODO: Stop script
 		} 
 
 		openHatch();
-		console.log("answerArray:");
-		console.log(minefield.answerArray);
-	}
+
+		if(minefield.mineArray[minefield.position.x][minefield.position.y] === 1) {
+			alert("Game Over\nOops, you died. :(\nPress F5 to continue.");
+			// TODO: Stop script
+		} else {
+
+			console.log(minefield);
+
+			var count = countItemsFromArray([9,10], minefield.answerArray) - minefield.mineCount;
+			console.log("count: "+count);
+
+			if(count === 0) {
+				alert("You won! :D");
+				// TODO: Stop script
+			}
+		}
+	} // todo: else if mouse right click pressed
 }
+
+
+//----------------------------------------
+
+// TODO: make a script which opens every blank point around chosen blank point
 
 // this algorithm should run everytime when player hit blank
 function openNeighbours() {
 	var posx = minefield.position.x;
 	var posy = minefield.position.y;
+	var sArray  =minefield.sweeperArray;
 
-	while( typeof(posx) !== "undefined" && typeof(posy) !== "undefined" )
+	while(1)
 	{
-		posy--;
-		posx--;
-
+		checkNeighbours(posx, posy, sArray);
 		break;
 	}
 }
 
+/**
+ * Check neighbours (up,down,left and right) and return 
+ */
+function checkNeighbours(x,y, checkArray) {
+	return {
+		"north": typeof(checkArray[x][y-1]) === "number" ? true : false,
+		"east" : typeof(checkArray[x+1][y]) === "number" ? true : false,
+		"south": typeof(checkArray[x][y+1]) === "number" ? true : false,
+		"west" : typeof(checkArray[x-1][y]) === "number" ? true : false
+	};
+}
+
+
+// ------ \\ ------ // ------ \\
+function openAround(cordinate, round){
+	// override values
+	var cordinate = [0,0];
+	var round = 1;
+}
+
+
+//-----------------------------------------
 function openHatch() {
 	var i = minefield.position.x;
 	var j = minefield.position.y;
@@ -284,7 +323,7 @@ function generateSweeperArray() {
 function getIndex(variable) {
 	return typeof(variable) === "number" 
 		? variable
-		: 11; // tässä pitää tietää
+		: 13; // tässä pitää tietää
 }
 
 function draw() {
