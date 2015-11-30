@@ -36,7 +36,7 @@ if( window.console && console.log ) {
 
 
 /**
- * Invalid paramer exeption
+ * Invalid paramer exeption. TODO: this is clunky, make it better
  *
  * @param string message
  */
@@ -72,7 +72,6 @@ function initialize2DArray(i_length, j_length, init_value) {
 		}
 	}
 
-	console.log(array);
 	return array;
 }
 
@@ -118,4 +117,46 @@ function listToMatrix(list, elementsPerSubArray) {
     }
 
     return matrix;
+}
+
+/**
+ * This would be better solution:
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
+ *
+ * @param  array array
+ * @param  var   element
+ * @return bool  true if element was found, else false
+ */
+function findFromArray(array, element) {
+	for(var i in array){
+		if(array[i] === element) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+function countItemsFromArray(items, array) {
+	var count=0;
+
+	// var items = [9,10]
+	for(var i=0; i<array.length; i++) {
+		var arrayitype = typeof(array[i]);
+
+		if( arrayitype === "object" ) {
+			count += countItemsFromArray( items, array[i] );
+		} else if( arrayitype === "number" ) {
+			if(findFromArray(items, array[i])) {
+				count++;
+			}
+
+		} else {
+			// In development ugliest errors are best :D
+			throw new InvalidParameterException("Parameter was "+arrayitype+" altough it have to be either object or number.");
+		}
+	}
+
+	return count;
 }
