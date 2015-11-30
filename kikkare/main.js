@@ -186,6 +186,9 @@ function openHatch() {
 	minefield.answerArray[i][j] = minefield.sweeperArray[i][j];
 }
 
+/**
+ * Calculate the position for player
+ */
 function calculatePlayerPosition() {
 	// Update position
 	minefield.position.x = Math.floor(game.input.x / minefield.tiles.sizeInCanvas);
@@ -196,9 +199,11 @@ function calculatePlayerPosition() {
 }
 
 /**
- * Make the minefield as an array where
- * value 0 means no mine and
- * value 1 is mine
+ * Make the minefield.mineArray as an array where 0 = no mine, and 1 = mine
+ * 
+ * @param width
+ * @param height
+ * @param amountOfMines
  */
 function initializeMinefield(width, height, amountOfMines) {
 	var minefieldSize = width*height;
@@ -206,7 +211,7 @@ function initializeMinefield(width, height, amountOfMines) {
 	// create it first as one dimensional array
 	minefield.mineArray = new Array(minefieldSize);
 
-	var i; // make sure, that i will 'live on' after for -loop
+	var i; // make sure, that i will 'live on' after for -loop, (altough it should live after the loop in javascript)
 	// put mines to first positions
 	for(i=0; i<amountOfMines; i++) {
 		minefield.mineArray[i] = 1;
@@ -242,7 +247,7 @@ function initializeMinefield(width, height, amountOfMines) {
 }
 
 /**
- * Generate sweeperArray from mineArray
+ * Generate minefield.sweeperArray as an 2-dimension array.
  */
 function generateSweeperArray() {
 	minefield.sweeperArray = new Array(minefield.tiles.countX);
@@ -323,12 +328,21 @@ function generateSweeperArray() {
 	}
 }
 
+/**
+ * Check type of variable, and return the variable itself or number 13
+ * 
+ * @param  variable
+ * @return variable|13
+ */
 function getIndex(variable) {
 	return typeof(variable) === "number" 
 		? variable
 		: 13; // tässä pitää tietää
 }
 
+/**
+ * Draws the minefield (game area)
+ */
 function draw() {
 	// first draw a minefield
 	// destroy an old area
@@ -361,13 +375,4 @@ function draw() {
 	minefield.player = game.add.sprite(x, y, "player");
 	minefield.player.loadTexture("nolla");
 	minefield.player.visible = visible;
-}
-
-function calculatePlayerPosition() {
-	// Update position
-	minefield.position.x = Math.floor(game.input.x / minefield.tiles.sizeInCanvas);
-	minefield.position.y = Math.floor(game.input.y / minefield.tiles.sizeInCanvas);
-	minefield.player.position.x = minefield.position.x * minefield.tiles.sizeInCanvas;
-	minefield.player.position.y = minefield.position.y * minefield.tiles.sizeInCanvas;
-	minefield.player.visible = true;
 }
