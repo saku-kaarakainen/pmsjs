@@ -89,18 +89,19 @@ function create() {
 
 	minefield.player = game.add.sprite(0, 0, "player");
 	minefield.player.loadTexture("nolla");
-	//minefield.player.visible = false;
+	minefield.player.visible = false;
+
+	// gray overlay
+	// minefield.filters = [game.add.filter("Gray")];
 }
 
 function update () {
-	draw();	
-
 	if(game.input.activePointer.isDown) {
-		preCheckAnimation();
+		calculatePlayerPosition();
 		mouseUp = 1;
 	} else if( game.input.activePointer.isUp && mouseUp === 1 ) {
 		mouseUp = 0;
-		//minefield.player.visible = false;
+		minefield.player.visible = false;
 
 		if(firstPress === true) {
 			// on a first press, we must
@@ -135,6 +136,8 @@ function update () {
 			}
 		}
 	} // todo: else if mouse right click pressed
+
+	draw();	
 }
 
 
@@ -183,7 +186,7 @@ function openHatch() {
 	minefield.answerArray[i][j] = minefield.sweeperArray[i][j];
 }
 
-function preCheckAnimation() {
+function calculatePlayerPosition() {
 	// Update position
 	minefield.position.x = Math.floor(game.input.x / minefield.tiles.sizeInCanvas);
 	minefield.position.y = Math.floor(game.input.y / minefield.tiles.sizeInCanvas);
@@ -327,9 +330,11 @@ function getIndex(variable) {
 }
 
 function draw() {
+	// first draw a minefield
+	// destroy an old area
 	minefield.area.destroy();
 	minefield.area = game.add.group();
-
+	// create a new one
 	for(var i=0; i<minefield.tiles.countX; i++) {
 		for(var j=0; j<minefield.tiles.countY; j++) {
 			var name = minefield.sprites[ getIndex(minefield.answerArray[i][j]) ].name;
@@ -340,4 +345,29 @@ function draw() {
 			);
 		}
 	}
+
+	// second draw a player, if the visible is not set to false
+	// we have to draw player now, because we create & draw the brackground before
+
+	// save player's position and visibility
+	var x = minefield.player.position.x;
+	var y = minefield.player.position.y;
+	var visible = minefield.player.visible;
+
+	// destroy old player
+	minefield.player.destroy();
+
+	// create player again
+	minefield.player = game.add.sprite(x, y, "player");
+	minefield.player.loadTexture("nolla");
+	minefield.player.visible = visible;
+}
+
+function calculatePlayerPosition() {
+	// Update position
+	minefield.position.x = Math.floor(game.input.x / minefield.tiles.sizeInCanvas);
+	minefield.position.y = Math.floor(game.input.y / minefield.tiles.sizeInCanvas);
+	minefield.player.position.x = minefield.position.x * minefield.tiles.sizeInCanvas;
+	minefield.player.position.y = minefield.position.y * minefield.tiles.sizeInCanvas;
+	minefield.player.visible = true;
 }
