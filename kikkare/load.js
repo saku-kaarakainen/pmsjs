@@ -11,18 +11,14 @@ var loadState = {
 			}, text : "Loading...", x : 80, y : 150 };
 		var loadingLabel = game.add.text(loading.x, loading.y, loading.text, loading.font);
 
-		// load button images
-		game.load.spritesheet(
-			"menu_buttons",							// button's name
-			"assets/buttons/menu/buttons64x16.png",	// button's location
-			64,										// single button's width
-			16,										// single button's height
-			3										// number of buttons
-		);
 
 		// load minefield images
 		for(var i=0; i<minefield.sprites.length; i++) {
 			game.load.image(minefield.sprites[i].name, minefield.sprites[i].location);
+		}
+
+		for(var i=0; i<buttons.menu.length; i++) {
+			var img = game.load.image(buttons.menu[i].name, buttons.menu[i].location);
 		}
 
 		// this array will initialises with value 9

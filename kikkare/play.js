@@ -26,7 +26,7 @@ var playState = {
 		minefield.player.loadTexture("nolla");
 		minefield.player.visible = false;
 
-		// gray overlay
+		// // gray overlay
 		// minefield.filters = [game.add.filter("Gray")];
 	},
 	update   : function() {

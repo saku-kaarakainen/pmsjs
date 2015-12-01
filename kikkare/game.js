@@ -1,3 +1,12 @@
+var buttons = {
+	// this is an array that you can loop it easily
+	menu : [
+		{ name: "menu_start",  location: "assets/buttons/new_game.png" },
+		{ name: "menu_option", location: "assets/buttons/options.png" },
+		{ name: "menu_stats",  location: "assets/buttons/statistics.png" }
+	]
+};
+
 var minefield = {
 	tiles : {
 		countX : 9,
