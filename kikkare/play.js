@@ -1,145 +1,81 @@
-var minefield = {
-	tiles : {
-		countX : 9,
-		countY : 9,
-		sizeInCanvas : 16,
-		totalWidth : null,
-		totalHeight: null
-	},
-	mineCount : 10,
-	mineArray : null, // TODO: remove this
-	sweeperArray : null,
-	answerArray : null,
-	freeSpaceLeft : null,
-	player : null,
-	area : null,
-	position : { x : null, y : null },
-	realPosition : { x : null, y : null},
-	sprites : [
-		{ name : "nolla",   location : "img/0.png" },          // 0
-		{ name : "eka",     location : "img/1.png" },          // 1
-		{ name : "toka",    location : "img/2.png" },          // 2
-		{ name : "kolmas",  location : "img/3.png" },          // 3
-		{ name : "neljas",  location : "img/4.png" },          // 4
-		{ name : "viides",  location : "img/5.png" },          // 5
-		{ name : "kuudes",  location : "img/6.png" },          // 6
-		{ name : "seiska",  location : "img/7.png" },          // 7
-		{ name : "kasi",    location : "img/8.png" },          // 8
-		{ name : "blank",   location : "img/unpressed.png" },  // 9
-		{ name : "lippu",   location : "img/flag.png" },       // 10
-		{ name : "kyssari", location : "img/wat.png" },        // 11
-		{ name : "tonni",   location : "img/burana1000.png" }, // 12
-		{ name : "caps",    location : "img/buranaCaps.png" }  // 13
-	]
-};
-
-// these have to do before preload
-minefield.tiles.totalWidth = minefield.tiles.countX * minefield.tiles.sizeInCanvas;
-minefield.tiles.totalHeight = minefield.tiles.countY * minefield.tiles.sizeInCanvas
-
-var game = new Phaser.Game(
-	minefield.tiles.totalWidth,
-	minefield.tiles.totalHeight,
-	Phaser.AUTO,
-	null, {
-		preload: preload,
-		create: create,
-		update: update
-});
-
 var firstPress = true;
 
 // A custom mouseUp, 
 // because apparently there's no proper handler in phaser
 var mouseUp = 0;
 
-function preload() {
-	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-	game.scale.pageAlignHorizontally = true;
-	game.scale.pageAlignVertically = true;
-	game.state.backgroundColor = "#009933";
+var playState = {
+	create   : function() {
+		// At the begin there no need anything but background
 
-	for(var i=0; i<minefield.sprites.length; i++) {
-		game.load.image(minefield.sprites[i].name, minefield.sprites[i].location);
-	}
+		minefield.area = game.add.group();
 
-	// this array will initialises with value 9
-	// because the correct sprites will pick by minefield.sprites' index
-	// and the 9 indicate there sprite "blank" 
-	minefield.answerArray = initialize2DArray(minefield.tiles.countX,minefield.tiles.countY, 9);
-	minefield.freeSpaceLeft = (minefield.tiles.countX*minefield.tiles.countY) - minefield.mineCount;
-}
+		// draws background
+		for(var i=0; i<minefield.tiles.countX; i++) {
+			for(var j=0; j<minefield.tiles.countY; j++) {
+				minefield.area.create(
+					i*minefield.tiles.sizeInCanvas, 
+					j*minefield.tiles.sizeInCanvas, 
+					"blank"
+				);
 
-function create() {
-	// At the begin there no need anything but background
-
-	minefield.area = game.add.group();
-
-	// draws background
-	for(var i=0; i<minefield.tiles.countX; i++) {
-		for(var j=0; j<minefield.tiles.countY; j++) {
-			minefield.area.create(
-				i*minefield.tiles.sizeInCanvas, 
-				j*minefield.tiles.sizeInCanvas, 
-				"blank"
-			);
-
-		}
-	}
-
-	minefield.player = game.add.sprite(0, 0, "player");
-	minefield.player.loadTexture("nolla");
-	minefield.player.visible = false;
-
-	// gray overlay
-	// minefield.filters = [game.add.filter("Gray")];
-}
-
-function update () {
-	if(game.input.activePointer.isDown) {
-		calculatePlayerPosition();
-		mouseUp = 1;
-	} else if( game.input.activePointer.isUp && mouseUp === 1 ) {
-		mouseUp = 0;
-		minefield.player.visible = false;
-
-		if(firstPress === true) {
-			// on a first press, we must
-			// initialize minefield
-			firstPress = false;
-			initializeMinefield(
-				minefield.tiles.countX,
-				minefield.tiles.countY,
-				minefield.mineCount
-			);
-
-			//first 'commit' to answerArray
-			//openNeighbours();
-
-		} 
-
-		openHatch();
-
-		if(minefield.mineArray[minefield.position.x][minefield.position.y] === 1) {
-			alert("Game Over\nOops, you died. :(\nPress F5 to continue.");
-			// TODO: Stop script
-		} else {
-
-			console.log(minefield);
-
-			var count = countItemsFromArray([9,10], minefield.answerArray) - minefield.mineCount;
-			console.log("count: "+count);
-
-			if(count === 0) {
-				alert("You won! :D");
-				// TODO: Stop script
 			}
 		}
-	} // todo: else if mouse right click pressed
 
-	draw();	
-}
+		minefield.player = game.add.sprite(0, 0, "player");
+		minefield.player.loadTexture("nolla");
+		minefield.player.visible = false;
 
+		// gray overlay
+		// minefield.filters = [game.add.filter("Gray")];
+	},
+	update   : function() {
+		if(game.input.activePointer.isDown) {
+			calculatePlayerPosition();
+			mouseUp = 1;
+		} else if( game.input.activePointer.isUp && mouseUp === 1 ) {
+			mouseUp = 0;
+			minefield.player.visible = false;
+
+			if(firstPress === true) {
+				// on a first press, we must
+				// initialize minefield
+				firstPress = false;
+				initializeMinefield(
+					minefield.tiles.countX,
+					minefield.tiles.countY,
+					minefield.mineCount
+				);
+
+				//first 'commit' to answerArray
+				//openNeighbours();
+
+			} 
+
+			openHatch();
+
+			if(minefield.mineArray[minefield.position.x][minefield.position.y] === 1) {
+				//alert("Game Over\nOops, you died. :(\nPress F5 to continue.");
+				this.gameOver();
+			} else {
+
+				console.log(minefield);
+
+				var count = countItemsFromArray([9,10], minefield.answerArray) - minefield.mineCount;
+				console.log("count: "+count);
+
+				if(count === 0) {
+					//alert("You won! :D");
+					this.win();
+				}
+			}
+		} // todo: else if mouse right click pressed
+
+		draw();	
+	},
+	win      : function() { game.state.start("win"); },
+	gameOver : function() { game.state.start("gameover"); }
+};
 
 //----------------------------------------
 
