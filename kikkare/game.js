@@ -1,11 +1,13 @@
-var buttons = {
-	// this is an array that you can loop it easily
-	menu : [
-		{ name: "menu_start",  location: "assets/buttons/new_game.png" },
-		{ name: "menu_option", location: "assets/buttons/options.png" },
-		{ name: "menu_stats",  location: "assets/buttons/statistics.png" }
-	]
-};
+// this is an array that you can loop it easily
+var buttons = [
+	// number after category tells order number in menu 
+	// (not the start menu, but a general menu)
+	{ name: "menu",         location: "assets/buttons/menu.png",         categories: { "win":1, "gameover":2 } },
+	{ name: "new_game",     location: "assets/buttons/new_game.png",     categories: { "win":0, "gameover":0, "menu":0 } },
+	{ name: "options",      location: "assets/buttons/options.png",      categories: { "menu":1 } },
+	{ name: "restart_game", location: "assets/buttons/restart_game.png", categories: { "gameover":1 } },
+	{ name: "statistics",   location: "assets/buttons/statistics.png",   categories: { "menu":2 } } 
+];
 
 var minefield = {
 	tiles : {
@@ -68,4 +70,32 @@ game.state.add("gameover", gameoverState);
 // First scene of the game is boot
 game.state.start("load");
 
-// TODO: Merge this with main.js?
+/**
+ * Scan var buttons, and gives elements by category (without element categories).
+ * 
+ * @param  string category - The category which we use.
+ * @return array           - The filtered buttons  
+ */
+function filterButtonsByCategory(cat) {
+	var ret = [];
+
+	for(var i=0; i<buttons.length; i++) {
+		var categories = buttons[i].categories;
+		// nice solution
+		// https://stackoverflow.com/questions/1098040/checking-if-a-key-exists-in-a-javascript-object
+		if( cat in categories ) {
+			/*
+			// Solution A
+			ret[ categories[cat] ] = {
+				name : buttons[i].name,
+				location : buttons[i].location
+			};
+			*/
+			// Solution B
+			ret[ categories[cat] ] = buttons[i];
+			delete ret[ categories[cat] ].categories;
+		}
+	}
+
+	return ret;
+}

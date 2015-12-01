@@ -17,8 +17,9 @@ var loadState = {
 			game.load.image(minefield.sprites[i].name, minefield.sprites[i].location);
 		}
 
-		for(var i=0; i<buttons.menu.length; i++) {
-			var img = game.load.image(buttons.menu[i].name, buttons.menu[i].location);
+		// load button's image
+		for(var i=0; i<buttons.length; i++) {
+			game.load.image(buttons[i].name, buttons[i].location);
 		}
 
 		// this array will initialises with value 9

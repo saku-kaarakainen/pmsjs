@@ -1,12 +1,21 @@
 var menuState = {
 	create: function() {
 		// add buttons to menu screen
-		for(var i=0; i<buttons.menu.length; i++) {
+		/*for(var i=0; i<buttons.menu.length; i++) {
 			var x = 10;
 			var y = (16*1.1*i)+10;
 			console.log("round i: "+i+". y: "+y+". name: "+buttons.menu[i].name);
 			game.add.button(x, y, buttons.menu[i].name, this.start); // TODO: change this.start out from here
-		}
+		 }*/
+		 var menu_buttons = filterButtonsByCategory("menu");
+
+		 for(var i=0; i<menu_buttons.length; i++) {
+		 	var x = 10;
+			var y = (16*1.1*i)+10;
+			console.log("round i: "+i+". y: "+y+". name: "+menu_buttons[i].name);
+			game.add.button(x, y, menu_buttons[i].name, this.start); // TODO: change this.start out from here
+		 }
+
 		
 		// Note that if you define this before adding buttons, it will color buttons.
 		// It's because WebGL lose the least recently used context:
