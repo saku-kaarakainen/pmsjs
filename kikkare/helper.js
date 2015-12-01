@@ -5,7 +5,7 @@
 // "THE BEER-WARE LICENSE" (Revision 42):
 // Saku Kaarakainen wrote this file,
 // altough this file contains functions, that is 'borrowed' from internet.
-// As long as you retain this notice you
+// As long as you retain this notice (exclude 'borrowed' stuff) you
 // can do whatever you want with this stuff.
 // If we meet some day, and you think
 // this stuff is worth it, you can buy me a beer in return.
