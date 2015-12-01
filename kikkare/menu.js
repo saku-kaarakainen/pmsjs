@@ -9,12 +9,15 @@ var menuState = {
 		 }*/
 		 var menu_buttons = filterButtonsByCategory("menu");
 
-		 for(var i=0; i<menu_buttons.length; i++) {
+
+		 centerOption(menu_buttons, [this.start, this.start, this.start]);
+
+		 /*for(var i=0; i<menu_buttons.length; i++) {
 		 	var x = 10;
 			var y = (16*1.1*i)+10;
 			console.log("round i: "+i+". y: "+y+". name: "+menu_buttons[i].name);
 			game.add.button(x, y, menu_buttons[i].name, this.start); // TODO: change this.start out from here
-		 }
+		 }*/
 
 		
 		// Note that if you define this before adding buttons, it will color buttons.

@@ -1,3 +1,84 @@
+/**
+ * Center an option
+ *
+ * @param array buttons
+ */
+function centerOption(buttons, callbackArray) {
+	var dimension = {
+		x: {
+			start:0,
+			center:0,
+			end:0
+		},
+		y: {
+			start:0,
+			center:0,
+			end:0
+		},
+	};
+	var dimensions = {
+		matrix : [],
+		longest : {
+			width:0,
+			wi:null, // index of width
+			height:0,
+			hi:null  // index of height
+		}
+	};
+
+	// Initialize dimensions for images
+	for(var i=0; i<buttons.length; i++) {
+		dimensions.matrix[i] = dimension;
+
+		dimensions.matrix[i].x.end = game.cache.getImage( buttons[i].name ).width;
+		dimensions.matrix[i].y.end = game.cache.getImage( buttons[i].name ).height;
+		
+		dimensions.matrix[i].x.center = dimensions.matrix[i].x.end / 2; // No need to add start this point
+		dimensions.matrix[i].y.center = dimensions.matrix[i].y.end / 2; // because, it's yet 0
+
+		if( dimensions.matrix[i].x.end > dimensions.longest.width ) {//dimensions[i].end equals width at this point
+			dimensions.longest.width = dimensions.matrix[i].x.end;
+			dimensions.longest.wi = i;
+		}
+
+		if( dimensions.matrix[i].y.end > dimensions.longest.height ) {
+			dimensions.longest.height = dimensions.matrix[i].y.end;
+			dimensions.longest.hi = i;
+		}
+	}
+
+	// tells which of matrix' has longest width
+	var longestByWidth =  dimensions.matrix[dimensions.longest.wi];
+	var longestByHeight = dimensions.matrix[dimensions.longest.hi];
+
+	for(var i=0; i<buttons.length; i++) {
+		var x_correction = longestByWidth.x.center  - dimensions.matrix[i].x.center;
+		var y_correction = longestByHeight.y.center - dimensions.matrix[i].y.center;
+
+		dimensions.matrix[i].x.start += x_correction;
+		dimensions.matrix[i].x.center = longestByWidth.x.center;
+		dimensions.matrix[i].x.end   += x_correction;
+
+		dimensions.matrix[i].y.start += y_correction;
+		dimensions.matrix[i].y.center = longestByHeight.y.center;
+		dimensions.matrix[i].y.end   += y_correction;
+	}
+
+	console.log("dimensions:");
+	console.log(dimensions);
+
+	// draw buttons
+	for(var i=0; i<buttons.length; i++) {
+		game.add.button(
+			dimensions.matrix[i].x.start,
+			dimensions.matrix[i].y.start,
+			buttons[i].name,
+			callbackArray[i]
+		);
+	}
+}
+
+
 // this is an array that you can loop it easily
 var buttons = [
 	// number after category tells order number in menu 
