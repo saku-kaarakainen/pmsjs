@@ -3,6 +3,11 @@ var loadState = {
 	// The preload function is stantard Phaser function,
 	// which is automatically called
 	preload: function() {
+		// Scaling is (or should be :D) better for mobile platforms
+		game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+		game.scale.pageAlignHorizontally = true;
+		game.scale.pageAlignVertically = true;
+
 		// TODO: switch this to loading animation
 		var loading = { 
 			font : {
