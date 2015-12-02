@@ -5,7 +5,7 @@ var firstPress = true;
 var mouseUp = 0;
 
 var playState = {
-	create   : function() {
+	create : function() {
 		// At the begin there no need anything but background
 
 		minefield.area = game.add.group();
@@ -29,7 +29,7 @@ var playState = {
 		// // gray overlay
 		// minefield.filters = [game.add.filter("Gray")];
 	},
-	update   : function() {
+	update : function() {
 		if(game.input.activePointer.isDown) {
 			calculatePlayerPosition();
 			mouseUp = 1;
@@ -49,32 +49,23 @@ var playState = {
 
 				//first 'commit' to answerArray
 				//openNeighbours();
-
 			} 
 
 			openHatch();
 
 			if(minefield.mineArray[minefield.position.x][minefield.position.y] === 1) {
-				//alert("Game Over\nOops, you died. :(\nPress F5 to continue.");
-				this.gameOver();
+				gameState.gameOver();
 			} else {
-
-				console.log(minefield);
-
 				var count = countItemsFromArray([9,10], minefield.answerArray) - minefield.mineCount;
-				console.log("count: "+count);
 
 				if(count === 0) {
-					//alert("You won! :D");
-					this.win();
+					gameState.win();
 				}
 			}
 		} // todo: else if mouse right click pressed
 
 		draw();	
-	},
-	win      : function() { game.state.start("win"); },
-	gameOver : function() { game.state.start("gameover"); }
+	}
 };
 
 //----------------------------------------
@@ -143,7 +134,6 @@ function calculatePlayerPosition() {
  */
 function initializeMinefield(width, height, amountOfMines) {
 	var minefieldSize = width*height;
-
 	// create it first as one dimensional array
 	minefield.mineArray = new Array(minefieldSize);
 

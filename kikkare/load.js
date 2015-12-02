@@ -11,7 +11,6 @@ var loadState = {
 			}, text : "Loading...", x : 80, y : 150 };
 		var loadingLabel = game.add.text(loading.x, loading.y, loading.text, loading.font);
 
-
 		// load minefield images
 		for(var i=0; i<minefield.sprites.length; i++) {
 			game.load.image(minefield.sprites[i].name, minefield.sprites[i].location);
@@ -21,14 +20,6 @@ var loadState = {
 		for(var i=0; i<buttons.length; i++) {
 			game.load.image(buttons[i].name, buttons[i].location);
 		}
-
-		// this array will initialises with value 9
-		// because the correct sprites will pick by minefield.sprites' index
-		// and the 9 indicate there sprite "blank" 
-		minefield.answerArray = initialize2DArray(minefield.tiles.countX,minefield.tiles.countY, 9);
-		minefield.freeSpaceLeft = (minefield.tiles.countX*minefield.tiles.countY) - minefield.mineCount;
-		console.log("load.js: function preload: minefield: "+minefield);
-		console.log(minefield);
 	},
 
 	create: function() {
