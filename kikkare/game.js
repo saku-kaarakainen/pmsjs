@@ -94,12 +94,12 @@ function centerOption(buttons, callbackArray) {
 	var x_correction = gameWdithCenter  - buttonGroup.x.center;
 	var y_correction = gameHeightCenter - buttonGroup.y.center;
 
-	buttonGroup.x.start  += x_correction;
-	buttonGroup.x.center += x_correction;
-	buttonGroup.x.end    += x_correction;
-	buttonGroup.y.start  += y_correction;
-	buttonGroup.y.center += y_correction;
-	buttonGroup.y.end    += y_correction;
+	buttonGroup.x.start	+= x_correction;
+	buttonGroup.x.center 	+= x_correction;
+	buttonGroup.x.end	+= x_correction;
+	buttonGroup.y.start	+= y_correction;
+	buttonGroup.y.center 	+= y_correction;
+	buttonGroup.y.end 	+= y_correction;
 
 	x_correction = null;
 	y_correction = null;
@@ -107,7 +107,7 @@ function centerOption(buttons, callbackArray) {
 	// Center options by canvas
 	for( var i=0; i<buttons.length; i++) {
 		var x_correction = gameWdithCenter  - dimensions.matrix[i].x.center;
-		var y_correction = gameHeightCenter - dimensions.matrix[i].y.center;
+		var y_correction = gameHeightCenter - dimensions.matrix[i].y.center - buttonGroup.y.center;
 
 		console.log("y_correction = "+y_correction+" = gameHeightCenter("+gameHeightCenter+") - dimensions.matrix["+i+"].y.center("+dimensions.matrix[i].y.center+")");
 
