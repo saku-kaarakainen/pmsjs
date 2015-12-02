@@ -1,21 +1,20 @@
 /**
  * Center an option
  *
- * @param array buttons
+ * @param array  buttons
+ * @param array  callbackArray
  */
 function centerOption(buttons, callbackArray) {
-	var dimension = {
-		x: {
-			start:0,
-			center:0,
-			end:0
-		},
-		y: {
-			start:0,
-			center:0,
-			end:0
-		},
+
+	if( typeof(align) === "undefined") align = "center";
+
+	// Define Dimension object
+	var Dimension = function() {
+		// public objects x and y
+		this.x = { start:0, center:0, end:0 };
+		this.y = { start:0, center:0, end:0 };
 	};
+
 	var dimensions = {
 		matrix : [],
 		longest : {
@@ -26,23 +25,30 @@ function centerOption(buttons, callbackArray) {
 		}
 	};
 
-	// Initialize dimensions for images
+	// Calculate dimensions for images
 	for(var i=0; i<buttons.length; i++) {
-		dimensions.matrix[i] = dimension;
+		// This loop shouldn't rewrite x.start and y.start
+		// so we don't need to rely about these values
+		var dim = new Dimension();
 
-		dimensions.matrix[i].x.end = game.cache.getImage( buttons[i].name ).width;
-		dimensions.matrix[i].y.end = game.cache.getImage( buttons[i].name ).height;
-		
-		dimensions.matrix[i].x.center = dimensions.matrix[i].x.end / 2; // No need to add start this point
-		dimensions.matrix[i].y.center = dimensions.matrix[i].y.end / 2; // because, it's yet 0
+		dim.x.end = game.cache.getImage( buttons[i].name ).width;
+		dim.y.end = game.cache.getImage( buttons[i].name ).height;
 
-		if( dimensions.matrix[i].x.end > dimensions.longest.width ) {//dimensions[i].end equals width at this point
-			dimensions.longest.width = dimensions.matrix[i].x.end;
+		// Still, we don't rely about x.start (nor y.start)
+		dim.x.center = dim.x.end / 2;
+		dim.y.center = dim.y.end / 2;
+
+		// Push Dimension dim to matrix
+		dimensions.matrix.push(dim);
+
+		// dim.x.end equals it's width at this point
+		if( dim.x.end > dimensions.longest.width ) {
+			dimensions.longest.width = dim.x.end;
 			dimensions.longest.wi = i;
 		}
 
-		if( dimensions.matrix[i].y.end > dimensions.longest.height ) {
-			dimensions.longest.height = dimensions.matrix[i].y.end;
+		if( dim.y.end > dimensions.longest.height ) {
+			dimensions.longest.height = dim.y.end;
 			dimensions.longest.hi = i;
 		}
 	}
@@ -51,6 +57,7 @@ function centerOption(buttons, callbackArray) {
 	var longestByWidth =  dimensions.matrix[dimensions.longest.wi];
 	var longestByHeight = dimensions.matrix[dimensions.longest.hi];
 
+	// Center options by button group as we could say
 	for(var i=0; i<buttons.length; i++) {
 		var x_correction = longestByWidth.x.center  - dimensions.matrix[i].x.center;
 		var y_correction = longestByHeight.y.center - dimensions.matrix[i].y.center;
@@ -59,16 +66,57 @@ function centerOption(buttons, callbackArray) {
 		dimensions.matrix[i].x.center = longestByWidth.x.center;
 		dimensions.matrix[i].x.end   += x_correction;
 
-		dimensions.matrix[i].y.start += y_correction;
-		dimensions.matrix[i].y.center = longestByHeight.y.center;
-		dimensions.matrix[i].y.end   += y_correction;
+		// define height only if it doesn't exists yet
+		var height = height || 0;
+
+		dimensions.matrix[i].y.start += height + y_correction;
+		dimensions.matrix[i].y.center = height + longestByHeight.y.center;
+		dimensions.matrix[i].y.end   += height + y_correction;
+
+		// Add height to previous height
+		height += dimensions.matrix[i].y.end - dimensions.matrix[i].y.start;
+		// height += 1; // Adds small gap between buttons
 	}
 
-	console.log("dimensions:");
-	console.log(dimensions);
+	// we have to delete height due we need it later
+	// but it's not possible in javascript. 
+	// so just give it value null, so it act like deleted one
+	height = null;
 
-	// draw buttons
+	var gameWdithCenter  = game.width  / 2;
+	var gameHeightCenter = game.height / 2;
+
+	// Center options by canvas
+	for( var i=0; i<buttons.length; i++) {
+		var x_correction = gameWdithCenter  - dimensions.matrix[i].x.center;
+		var y_correction = gameHeightCenter - dimensions.matrix[i].y.center;
+
+		console.log("y_correction: "+y_correction);
+
+		dimensions.matrix[i].x.start += x_correction;
+		dimensions.matrix[i].x.center = gameWdithCenter;
+		dimensions.matrix[i].x.end   += x_correction;
+
+		var height = height || 0;
+
+		dimensions.matrix[i].y.start += height + y_correction;
+		dimensions.matrix[i].y.center = height + gameHeightCenter;
+		dimensions.matrix[i].y.end   += height + y_correction;
+
+		// Add height to previous height
+		height += dimensions.matrix[i].y.end - dimensions.matrix[i].y.start;
+	} // TODO: could we merge this and previous loop?
+
+	// 'draw' buttons
 	for(var i=0; i<buttons.length; i++) {
+		/*console.log({
+			i:i,
+			x:dimensions.matrix[i].x.start,
+			y:dimensions.matrix[i].y.start,
+			name:buttons[i].name,
+			callback:callbackArray[i]
+		});*/
+
 		game.add.button(
 			dimensions.matrix[i].x.start,
 			dimensions.matrix[i].y.start,
