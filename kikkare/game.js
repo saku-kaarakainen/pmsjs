@@ -1,3 +1,28 @@
+/**
+  *  Dim object
+  *
+  * @var start
+  * @var center
+  * @var end
+  */
+var Dim = function() { 
+	this.start=0;
+	this.center=0;
+	this.end=0;
+};
+
+/**
+  * Dimensional object
+  *
+  * @var Dim x
+  * @var Dim y
+  */
+var Dimension = function(x, y) {
+	// public objects x and y
+	this.x = typeof(x) === "undefined" ? { start:0, center:0, end:0 } : x;
+	this.y = typeof(y) === "undefined" ? { start:0, center:0, end:0 } : y;
+};
+
 // this is an array that you can loop it easily
 var buttons = [
 	// number after category tells order number in menu  (0 = first, 1 = second, etc...)
@@ -13,7 +38,7 @@ var minefield = {
 	tiles : {
 		countX : 9,
 		countY : 9,
-		sizeInCanvas : 16,
+		sizeInCanvas : 16, // it's square
 		totalWidth : null,
 		totalHeight: null
 	},
@@ -50,10 +75,10 @@ var h=minefield.tiles.totalHeight = minefield.tiles.countY * minefield.tiles.siz
 
 // We are setting the game to the div with id "gameDiv"
 var game = new Phaser.Game(
-	minefield.tiles.totalWidth,  // width
-	minefield.tiles.totalHeight, // height
-	Phaser.AUTO					 // No states define yet
-);
+	minefield.tiles.totalWidth + (2* minefield.tiles.sizeInCanvas), // add some space for toolbar
+	minefield.tiles.totalHeight,
+	Phaser.AUTO		     
+);  // No states define yet
 
 // Use this for scene navigation
 var gameState = {
@@ -133,13 +158,6 @@ function filterButtonsByCategory(cat) {
 function centerOption(buttons, callbackArray) {
 
 	if( typeof(align) === "undefined") align = "center";
-
-	// Define Dimension object
-	var Dimension = function() {
-		// public objects x and y
-		this.x = { start:0, center:0, end:0 };
-		this.y = { start:0, center:0, end:0 };
-	};
 
 	var dimensions = {
 		matrix : [],

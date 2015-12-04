@@ -1,10 +1,28 @@
 var firstPress = true;
 
-// A custom mouseUp, 
-// because apparently there's no proper handler in phaser
-var mouseUp = 0;
 
+// ---------------
+//  CONSTANTS
+// ---------------
+var MOUSE_UP = 0;
+var MOUSE_OVER = -1;
+var SELECTED_BUTTON = 0;
+var BUTTON ={
+	BLANK : 0,
+	FLAG : 1,
+	QUESTION : 2,
+};
+
+// Because there are custom, a constantly 'changing backgound', 
+// a custom drag and drop handler must be made
+var dnd = {
+	name: ["nolla", "lippu", "kyssari"],
+	sprite: []
+};
+
+var dynamicFunctions = [];
 var playState = {
+	preload: function() { game.stage.backgroundColor = 0xffffff; },
 	create : function() {
 		// At the begin there no need anything but background
 
@@ -22,6 +40,42 @@ var playState = {
 			}
 		}
 
+		// x is same for every dndn item
+		var halfSizeTile = minefield.tiles.sizeInCanvas / 2;
+		var x =  {
+			start: minefield.tiles.totalWidth + halfSizeTile,
+			center:null,
+			end:null
+		};
+
+		// x is same for every
+		var x = {
+			start : minefield.tiles.totalWidth + halfSizeTile,
+			center : minefield.tiles.totalWidth + (halfSizeTile/2),
+			end : minefield.tiles.totalWidth+ minefield.tiles.sizeInCanvas
+		};
+
+		// first the selected item will be drawn
+		var toolbox 
+
+		// first add static sprites under drag and drop items
+		// so when user drag the item, there's another one in the toolbox
+		for(var i=0; i<dnd.name.length; i++) {
+			var y = new Dim();
+			y.start = minefield.tiles.sizeInCanvas*i + halfSizeTile;
+			y.center = y.start + halfSizeTile;
+			y.end = y.center + halfSizeTile;
+
+			var sprite = game.add.sprite(x.start, y.start, dnd.name[i]);
+			dnd.sprite.push(sprite);
+			/*dnd.sprite.push({
+				x:x,
+				y:y,
+				width:minefield.tiles.sizeInCanvas,
+				height:minefield.tiles.sizeInCanvas,
+			});*/
+		}
+
 		minefield.player = game.add.sprite(0, 0, "player");
 		minefield.player.loadTexture("nolla");
 		minefield.player.visible = false;
@@ -30,36 +84,48 @@ var playState = {
 		// minefield.filters = [game.add.filter("Gray")];
 	},
 	update : function() {
+		checkDragAndDropItems();		
+
 		if(game.input.activePointer.isDown) {
-			calculatePlayerPosition();
-			mouseUp = 1;
-		} else if( game.input.activePointer.isUp && mouseUp === 1 ) {
-			mouseUp = 0;
-			minefield.player.visible = false;
+			calculatePlayer();
+			MOUSE_UP = 1;
+		} else if(	game.input.activePointer.isUp && MOUSE_UP === 1 ) {
 
-			if(firstPress === true) {
-				// on a first press, we must
-				// initialize minefield
-				firstPress = false;
-				initializeMinefield(
-					minefield.tiles.countX,
-					minefield.tiles.countY,
-					minefield.mineCount
-				);
-
-				//first 'commit' to answerArray
-				//openNeighbours();
-			} 
-
-			openHatch();
-
-			if(minefield.mineArray[minefield.position.x][minefield.position.y] === 1) {
-				gameState.gameOver();
+			//  first check if the player's position is out of the game area
+			if (	minefield.position.x >= minefield.tiles.countX
+			||	minefield.position.y >= minefield.tiles.countY) {
+				// if it's clicked in here, check if it was clicked to toolbar button
+				console.log("MOUSE_UP on toolbar area");
 			} else {
-				var count = countItemsFromArray([9,10], minefield.answerArray) - minefield.mineCount;
+				// It was clicked inside game area
 
-				if(count === 0) {
-					gameState.win();
+				MOUSE_UP = 0;
+				minefield.player.visible = false;
+
+				if(firstPress === true) {
+					// on a first press, we must
+				// initialize minefield
+					firstPress = false;
+					initializeMinefield(
+						minefield.tiles.countX,
+						minefield.tiles.countY,
+						minefield.mineCount
+					);
+
+					//first 'commit' to answerArray
+					//openNeighbours();
+				} 
+
+				openHatch();
+
+				if(minefield.mineArray[minefield.position.x][minefield.position.y] === 1) {
+					gameState.gameOver();
+				} else {
+					var count = countItemsFromArray([9,10], minefield.answerArray) - minefield.mineCount;
+
+					if(count === 0) {
+						gameState.win();
+					}
 				}
 			}
 		} // todo: else if mouse right click pressed
@@ -97,14 +163,12 @@ function checkNeighbours(x,y, checkArray) {
 	};
 }
 
-
 // ------ \\ ------ // ------ \\
 function openAround(cordinate, round){
 	// override values
 	var cordinate = [0,0];
 	var round = 1;
 }
-
 
 //-----------------------------------------
 function openHatch() {
@@ -116,7 +180,7 @@ function openHatch() {
 /**
  * Calculate the position for player
  */
-function calculatePlayerPosition() {
+function calculatePlayer() {
 	// Update position
 	minefield.position.x = Math.floor(game.input.x / minefield.tiles.sizeInCanvas);
 	minefield.position.y = Math.floor(game.input.y / minefield.tiles.sizeInCanvas);
@@ -126,7 +190,37 @@ function calculatePlayerPosition() {
 }
 
 /**
+ * Calculate if game.input.(x|y) is on toolbox button,
+ */
+function checkDragAndDropItems() {
+	// must calculate constantly
+	console.log("chechkDragAndDropItems() called");
+	console.log(dnd);
+	var counter = 0;
+
+	for(var i=0; i<dnd.sprite.length; i++) {
+		if(	game.input.x > dnd.sprite[i].x.start 
+		&&	game.input.x < dnd.sprite[i].x.end
+		&&	game.input.y > dnd.sprite[i].y.start
+		&&	game.input.y > dnd.sprite[i].y.end ) {
+			// mouse is over on that sprite
+			MOUSE_OVER = i;
+			MOUSE_OVER_CHANGED = true;
+			// because mouse can be over only on one button
+			break; // i = i=dnd.sprite.length;
+		} else {
+			counter++;
+		}
+	}
+
+	if( counter === dnd.sprite.length ) {
+		MOUSE_OVER = -1;
+	}
+}
+
+/**
  * Make the minefield.mineArray as an array where 0 = no mine, and 1 = mine
+ * TODO: Move this inside minefield ( ? )
  * 
  * @param width
  * @param height
@@ -286,7 +380,7 @@ function draw() {
 		}
 	}
 
-	// second draw a player, if the visible is not set to false
+	// then draw a player, if the visible is not set to false
 	// we have to draw player now, because we create & draw the brackground before
 
 	// save player's position and visibility
@@ -299,6 +393,16 @@ function draw() {
 
 	// create player again
 	minefield.player = game.add.sprite(x, y, "player");
-	minefield.player.loadTexture("nolla");
+
+	switch ( SELECTED_BUTTON ) {
+		case BUTTON.FLAG: minefield.player.loadTexture("lippu"); break;
+		case BUTTON.QUESTION: minefield.player.loadTexture("kyssari"); break;
+		default:  minefield.player.loadTexture("nolla"); break; // case BUTTON.BLANK
+	}
+
 	minefield.player.visible = visible;
+}
+
+function over() {
+
 }

@@ -4,19 +4,6 @@
         <meta charset="utf-8">
         <title>pmsjs</title>
         <link rel="stylesheet" type="text/css" href="styles.css">
-        <script type="text/javascript">
-// Override the default right mouse click event,
-// because we use mouse right click event in our game
-if( document.addEventListener ) {
-    document.addEventListener("contextmenu", function(e) {
-        e.preventDefault();
-    }, false);
-} else {
-    document.attachEvent("oncontextmenu", function() {
-        window.event.returnValue = false;
-    });
-        }
-        </script>
         <script src="lib/phaser.min.js"></script>
         <script src="kikkare/helper.js"></script>
         <script src="kikkare/load.js"></script>
