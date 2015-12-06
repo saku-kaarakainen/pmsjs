@@ -84,12 +84,12 @@ var playState = {
 				// if it's clicked in here, check if it was clicked to toolbar button
 				// console.log("MOUSE_UP on toolbar area");
 			} else if( SELECTED_BUTTON === BUTTON.FLAG ) {
-				// flag button selected
-				console.log("button flag");
+				// { name : "lippu",   location : "assets/game/flag.png" },       // 10
+				minefield.answerArray[minefield.position.x][minefield.position.y] = 10;
 			} else if( SELECTED_BUTTON === BUTTON.QUESTION ) {
-				// flag button selected
-				console.log("button question");
-			} else { // else if( SELECTED_BUTTON === BUTTON.BLANK )
+				// { name : "kyssari", location : "assets/game/wat.png" },        // 11
+				minefield.answerArray[minefield.position.x][minefield.position.y] = 11;
+			} else if( SELECTED_BUTTON === BUTTON.BLANK ) {
 
 				if(firstPress === true) {
 					// on a first press, we must
