@@ -48,6 +48,7 @@ var minefield = {
 	answerArray : null,
 	freeSpaceLeft : null,
 	player : null,
+	selected : null,
 	area : null,
 	position : { x : null, y : null },
 	realPosition : { x : null, y : null},
@@ -131,18 +132,12 @@ function filterButtonsByCategory(cat) {
 	var ret = [];
 	for(var i=0; i<buttons.length; i++) {
 		var categories = buttons[i].categories;
-		// nice solution
-		// https://stackoverflow.com/questions/1098040/checking-if-a-key-exists-in-a-javascript-object
 		if( cat in categories ) {		
 			// Solution A
 			ret[ categories[cat] ] = {
 				name : buttons[i].name,
 				location : buttons[i].location
 			};
-			
-			// Solution B
-			//ret[ categories[cat] ] = buttons[i];
-			// // delete ret[ categories[cat] ].categories; // if youdo this line, it will also delete buttons.categories
 		}
 	}
 
@@ -265,23 +260,14 @@ function centerOption(buttons, callbackArray) {
 
 		// Add height to previous height
 		height += dimensions.matrix[i].y.end - dimensions.matrix[i].y.start;
-	} // TODO: could we merge this and previous loop?
 
-	// 'draw' buttons
-	for(var i=0; i<buttons.length; i++) {
-		/*console.log({
-			i:i,
-			x:dimensions.matrix[i].x.start,
-			y:dimensions.matrix[i].y.start,
-			name:buttons[i].name,
-			callback:callbackArray[i]
-		});*/
-
+		// 'Draw' buttons
+		// it's unnecessary extra work to make another loop for making these buttons
 		game.add.button(
 			dimensions.matrix[i].x.start,
 			dimensions.matrix[i].y.start,
 			buttons[i].name,
 			callbackArray[i]
 		);
-	}
+	} // TODO: could we merge this and previous loop?
 }

@@ -1,11 +1,7 @@
 var firstPress = true;
 
-
-// ---------------
-//  CONSTANTS
-// ---------------
 var MOUSE_UP = 0;
-var MOUSE_OVER = -1;
+var MOUSE_OVER = -1;  
 var SELECTED_BUTTON = 0;
 var BUTTON ={
 	BLANK : 0,
@@ -22,7 +18,7 @@ var dnd = {
 
 var dynamicFunctions = [];
 var playState = {
-	preload: function() { game.stage.backgroundColor = 0xffffff; },
+	// preload: function() { game.stage.backgroundColor = 0xffffff; },
 	create : function() {
 		// At the begin there no need anything but background
 
@@ -42,43 +38,30 @@ var playState = {
 
 		// x is same for every dndn item
 		var halfSizeTile = minefield.tiles.sizeInCanvas / 2;
-		var x =  {
-			start: minefield.tiles.totalWidth + halfSizeTile,
-			center:null,
-			end:null
-		};
+		var x = minefield.tiles.totalWidth + halfSizeTile;
 
-		// x is same for every
-		var x = {
-			start : minefield.tiles.totalWidth + halfSizeTile,
-			center : minefield.tiles.totalWidth + (halfSizeTile/2),
-			end : minefield.tiles.totalWidth+ minefield.tiles.sizeInCanvas
-		};
+		// draw 'selected item'
+		minefield.selected = game.add.sprite(x,halfSizeTile, "nolla");
 
-		// first the selected item will be drawn
-		var toolbox 
+		var y_start_point = 2*minefield.tiles.sizeInCanvas;
 
-		// first add static sprites under drag and drop items
-		// so when user drag the item, there's another one in the toolbox
 		for(var i=0; i<dnd.name.length; i++) {
-			var y = new Dim();
-			y.start = minefield.tiles.sizeInCanvas*i + halfSizeTile;
-			y.center = y.start + halfSizeTile;
-			y.end = y.center + halfSizeTile;
+			var y = minefield.tiles.sizeInCanvas*i + halfSizeTile + y_start_point;
 
-			var sprite = game.add.sprite(x.start, y.start, dnd.name[i]);
-			dnd.sprite.push(sprite);
-			/*dnd.sprite.push({
-				x:x,
-				y:y,
-				width:minefield.tiles.sizeInCanvas,
-				height:minefield.tiles.sizeInCanvas,
-			});*/
+			var button;
+			button = game.add.button(x, y, dnd.name[i], selectButton, button);
+			button.button_id = i;
+			button.button_name = dnd.name[i];
+			button.button_x = x;
+			button.button_y = halfSizeTile;
 		}
 
 		minefield.player = game.add.sprite(0, 0, "player");
 		minefield.player.loadTexture("nolla");
 		minefield.player.visible = false;
+
+		console.log("minefield.player");
+		console.log(minefield.player);
 
 		// // gray overlay
 		// minefield.filters = [game.add.filter("Gray")];
@@ -90,21 +73,27 @@ var playState = {
 			calculatePlayer();
 			MOUSE_UP = 1;
 		} else if(	game.input.activePointer.isUp && MOUSE_UP === 1 ) {
+			MOUSE_UP = 0;
+
+			// It was clicked inside game area
+			minefield.player.visible = false;
 
 			//  first check if the player's position is out of the game area
 			if (	minefield.position.x >= minefield.tiles.countX
-			||	minefield.position.y >= minefield.tiles.countY) {
+			||	minefield.position.y >= minefield.tiles.countY ) {
 				// if it's clicked in here, check if it was clicked to toolbar button
-				console.log("MOUSE_UP on toolbar area");
-			} else {
-				// It was clicked inside game area
-
-				MOUSE_UP = 0;
-				minefield.player.visible = false;
+				// console.log("MOUSE_UP on toolbar area");
+			} else if( SELECTED_BUTTON === BUTTON.FLAG ) {
+				// flag button selected
+				console.log("button flag");
+			} else if( SELECTED_BUTTON === BUTTON.QUESTION ) {
+				// flag button selected
+				console.log("button question");
+			} else { // else if( SELECTED_BUTTON === BUTTON.BLANK )
 
 				if(firstPress === true) {
 					// on a first press, we must
-				// initialize minefield
+					// initialize minefield
 					firstPress = false;
 					initializeMinefield(
 						minefield.tiles.countX,
@@ -194,8 +183,6 @@ function calculatePlayer() {
  */
 function checkDragAndDropItems() {
 	// must calculate constantly
-	console.log("chechkDragAndDropItems() called");
-	console.log(dnd);
 	var counter = 0;
 
 	for(var i=0; i<dnd.sprite.length; i++) {
@@ -405,4 +392,24 @@ function draw() {
 
 function over() {
 
+}
+
+/**
+ * An object-like function which change player.
+ * 
+ * Mandatory public properties:
+ *   int    button_id   - A selected button's id
+ *   string button_name - A selected button's name
+ *   int    button_x    - A selected button's x
+ *   int    button_y    - A selected button's y
+ */
+function selectButton() {
+	// changed selected button to correct one.
+	SELECTED_BUTTON = this.button_id;
+
+	// destroy old sprite
+	minefield.selected.destroy();
+
+	// create sprite again
+	minefield.selected = game.add.sprite(this.button_x, this.button_y, this.button_name);
 }
