@@ -1,3 +1,4 @@
+var toolbox = { button:[] };
 var firstPress = true;
 
 var MOUSE_UP = 0;
@@ -50,10 +51,17 @@ var playState = {
 
 			var button;
 			button = game.add.button(x, y, dnd.name[i], selectButton, button);
+
+			// set buttons's properties
 			button.button_id = i;
 			button.button_name = dnd.name[i];
 			button.button_x = x;
 			button.button_y = halfSizeTile;
+
+			// Enable the hand cursor
+			button.input.useHandCursor = true;
+
+			toolbox.button.push(button);
 		}
 
 		minefield.player = game.add.sprite(0, 0, "player");
@@ -120,6 +128,11 @@ var playState = {
 		} // todo: else if mouse right click pressed
 
 		draw();	
+	},
+	// Only for debugging
+	render:function() {
+		console.log("render");
+		game.debug.body(toolbox.button[0]);
 	}
 };
 
