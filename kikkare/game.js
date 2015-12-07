@@ -1,3 +1,28 @@
+/**
+  *  Dim object
+  *
+  * @var start
+  * @var center
+  * @var end
+  */
+var Dim = function() { 
+	this.start=0;
+	this.center=0;
+	this.end=0;
+};
+
+/**
+  * Dimensional object
+  *
+  * @var Dim x
+  * @var Dim y
+  */
+var Dimension = function(x, y) {
+	// public objects x and y
+	this.x = typeof(x) === "undefined" ? { start:0, center:0, end:0 } : x;
+	this.y = typeof(y) === "undefined" ? { start:0, center:0, end:0 } : y;
+};
+
 // this is an array that you can loop it easily
 var buttons = [
 	// number after category tells order number in menu  (0 = first, 1 = second, etc...)
@@ -13,7 +38,7 @@ var minefield = {
 	tiles : {
 		countX : 9,
 		countY : 9,
-		sizeInCanvas : 16,
+		sizeInCanvas : 16, // it's square
 		totalWidth : null,
 		totalHeight: null
 	},
@@ -23,6 +48,7 @@ var minefield = {
 	answerArray : null,
 	freeSpaceLeft : null,
 	player : null,
+	selected : null,
 	area : null,
 	position : { x : null, y : null },
 	realPosition : { x : null, y : null},
@@ -50,10 +76,10 @@ var h=minefield.tiles.totalHeight = minefield.tiles.countY * minefield.tiles.siz
 
 // We are setting the game to the div with id "gameDiv"
 var game = new Phaser.Game(
-	minefield.tiles.totalWidth,  // width
-	minefield.tiles.totalHeight, // height
-	Phaser.AUTO					 // No states define yet
-);
+	minefield.tiles.totalWidth + (2* minefield.tiles.sizeInCanvas), // add some space for toolbar
+	minefield.tiles.totalHeight,
+	Phaser.AUTO		     
+);  // No states define yet
 
 // Use this for scene navigation
 var gameState = {
@@ -106,18 +132,12 @@ function filterButtonsByCategory(cat) {
 	var ret = [];
 	for(var i=0; i<buttons.length; i++) {
 		var categories = buttons[i].categories;
-		// nice solution
-		// https://stackoverflow.com/questions/1098040/checking-if-a-key-exists-in-a-javascript-object
 		if( cat in categories ) {		
 			// Solution A
 			ret[ categories[cat] ] = {
 				name : buttons[i].name,
 				location : buttons[i].location
 			};
-			
-			// Solution B
-			//ret[ categories[cat] ] = buttons[i];
-			// // delete ret[ categories[cat] ].categories; // if youdo this line, it will also delete buttons.categories
 		}
 	}
 
@@ -133,13 +153,6 @@ function filterButtonsByCategory(cat) {
 function centerOption(buttons, callbackArray) {
 
 	if( typeof(align) === "undefined") align = "center";
-
-	// Define Dimension object
-	var Dimension = function() {
-		// public objects x and y
-		this.x = { start:0, center:0, end:0 };
-		this.y = { start:0, center:0, end:0 };
-	};
 
 	var dimensions = {
 		matrix : [],
@@ -247,23 +260,14 @@ function centerOption(buttons, callbackArray) {
 
 		// Add height to previous height
 		height += dimensions.matrix[i].y.end - dimensions.matrix[i].y.start;
-	} // TODO: could we merge this and previous loop?
 
-	// 'draw' buttons
-	for(var i=0; i<buttons.length; i++) {
-		/*console.log({
-			i:i,
-			x:dimensions.matrix[i].x.start,
-			y:dimensions.matrix[i].y.start,
-			name:buttons[i].name,
-			callback:callbackArray[i]
-		});*/
-
+		// 'Draw' buttons
+		// it's unnecessary extra work to make another loop for making these buttons
 		game.add.button(
 			dimensions.matrix[i].x.start,
 			dimensions.matrix[i].y.start,
 			buttons[i].name,
 			callbackArray[i]
 		);
-	}
+	} // TODO: could we merge this and previous loop?
 }

@@ -1,7 +1,13 @@
 // helper.js
 // Contains useful general functions
 
-// https://stackoverflow.com/questions/5129624/convert-js-date-time-to-mysql-datetime
+/**
+ * Generate SQL-compatible string timestamp
+ * https://stackoverflow.com/questions/5129624/convert-js-date-time-to-mysql-datetime
+ *
+ * @param  Date date
+ * @return string
+ */
 function dateToSQLTimestamp(date) {
 	return   date.getUTCFullYear()              + "-" +
 	( "00" + (date.getUTCMonth()+1) ).slice(-2) + "-" +
@@ -11,8 +17,9 @@ function dateToSQLTimestamp(date) {
 	( "00" + date.getUTCSeconds() )  .slice(-2);
 }
 
-// Custom console.log(). Puts timestamp before logging to console.log
-// https://stackoverflow.com/questions/16259711/how-can-i-override-console-log-and-append-a-word-at-the-beginning-of-the-outpu
+/**
+ * Custom console.log(). Puts timestamp before logging to console.log
+ */
 if( window.console && console.log ) {
 	var tmp = console.log;
 
@@ -32,6 +39,7 @@ if( window.console && console.log ) {
 function InvalidParameterException(message) {
 	this.message = message;
 	this.name = "invalidParameterException";
+	alert(this.name+"\n\n"+this.message);
 }
 
 /**
@@ -67,6 +75,7 @@ function initialize2DArray(i_length, j_length, init_value) {
 /**
  * Shuffles an array. Uses Fisher-Yates Shuffle
  * https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+ *
  * @param array array - An array which you want to be shuffled
  * @return array      - shuffled array
  */
@@ -92,14 +101,17 @@ function shuffle(array) {
 /**
  * Convert one-dimensional array to 2d array.
  * https://stackoverflow.com/questions/4492385/how-to-convert-simple-array-into-two-dimensional-arraymatrix-in-javascript-or
+ * 
+ * @param  array list               - the array to to be converted
+ * @param  int   elementPerSubArray - Number of elements in a sub array
+ * @return array 					- two-dimensional array
  */
 function listToMatrix(list, elementsPerSubArray) {
 	var matrix = [], i, k;
 
     for (i = 0, k = -1; i < list.length; i++) {
         if (i % elementsPerSubArray === 0) {
-            k++;
-            matrix[k] = [];
+            matrix[++k] = [];
         }
 
         matrix[k].push(list[i]);
@@ -109,12 +121,12 @@ function listToMatrix(list, elementsPerSubArray) {
 }
 
 /**
- * This would be better solution:
+ * Find an element from the array. This would be better solution:
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
  *
- * @param  array array
- * @param  var   element
- * @return bool  true if element was found, else false
+ * @param  array array   - An array from where you are looking the element
+ * @param  var   element - The element that you want to find
+ * @return bool  true    - if element was found, else false
  */
 function findFromArray(array, element) {
 	for(var i in array){
@@ -126,7 +138,13 @@ function findFromArray(array, element) {
 	return false;
 }
 
-
+/**
+ * Count numbers and objects in array. Uses recursion.
+ *
+ * @param  var   items - the items you are counting
+ * @param  array array - the array where you are looking for the items
+ * @return int         - Count of items
+ */
 function countItemsFromArray(items, array) {
 	var count=0;
 
@@ -142,7 +160,7 @@ function countItemsFromArray(items, array) {
 			}
 
 		} else {
-			// In development ugliest errors are best :D
+			// In a development ugliest errors are best :D
 			throw new InvalidParameterException("Parameter was "+arrayitype+" altough it have to be either object or number.");
 		}
 	}
