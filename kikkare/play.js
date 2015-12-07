@@ -49,7 +49,7 @@ var playState = {
 		for(var i=0; i<dnd.name.length; i++) {
 			var y = minefield.tiles.sizeInCanvas*i + halfSizeTile + y_start_point;
 
-			var button;
+			var button = null;
 			button = game.add.button(x, y, dnd.name[i], selectButton, button);
 
 			// set buttons's properties
@@ -128,11 +128,6 @@ var playState = {
 		} // todo: else if mouse right click pressed
 
 		draw();	
-	},
-	// Only for debugging
-	render:function() {
-		console.log("render");
-		game.debug.body(toolbox.button[0]);
 	}
 };
 
