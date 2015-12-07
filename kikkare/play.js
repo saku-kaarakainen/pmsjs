@@ -4,11 +4,6 @@ var firstPress = true;
 var MOUSE_UP = 0;
 var MOUSE_OVER = -1;  
 var SELECTED_BUTTON = 0;
-var BUTTON ={
-	BLANK : 0,
-	FLAG : 1,
-	QUESTION : 2,
-};
 
 // Because there are custom, a constantly 'changing backgound', 
 // a custom drag and drop handler must be made
@@ -44,6 +39,7 @@ var playState = {
 		// draw 'selected item'
 		minefield.selected = game.add.sprite(x,halfSizeTile, "nolla");
 
+		// Two times because we 'skip' first two spaces
 		var y_start_point = 2*minefield.tiles.sizeInCanvas;
 
 		for(var i=0; i<dnd.name.length; i++) {
@@ -68,9 +64,6 @@ var playState = {
 		minefield.player.loadTexture("nolla");
 		minefield.player.visible = false;
 
-		console.log("minefield.player");
-		console.log(minefield.player);
-
 		// // gray overlay
 		// minefield.filters = [game.add.filter("Gray")];
 	},
@@ -91,12 +84,12 @@ var playState = {
 			||	minefield.position.y >= minefield.tiles.countY ) {
 				// if it's clicked in here, check if it was clicked to toolbar button
 				// console.log("MOUSE_UP on toolbar area");
-			} else if( SELECTED_BUTTON === BUTTON.FLAG ) {
+			} else if( SELECTED_BUTTON === __BUTTON.FLAG ) {
 				// { name : "lippu",   location : "assets/game/flag.png" },       // 10
-				minefield.answerArray[minefield.position.x][minefield.position.y] = 10;
+				minefield.answerArray[minefield.position.x][minefield.position.y] = BUTTON.FLAG;
 			} else if( SELECTED_BUTTON === BUTTON.QUESTION ) {
 				// { name : "kyssari", location : "assets/game/wat.png" },        // 11
-				minefield.answerArray[minefield.position.x][minefield.position.y] = 11;
+				minefield.answerArray[minefield.position.x][minefield.position.y] = BUTTON.QUESTION;
 			} else if( SELECTED_BUTTON === BUTTON.BLANK ) {
 
 				if(firstPress === true) {
@@ -108,9 +101,6 @@ var playState = {
 						minefield.tiles.countY,
 						minefield.mineCount
 					);
-
-					//first 'commit' to answerArray
-					//openNeighbours();
 				} 
 
 				openHatch();
@@ -160,18 +150,14 @@ function checkNeighbours(x,y, checkArray) {
 	};
 }
 
-// ------ \\ ------ // ------ \\
-function openAround(cordinate, round){
-	// override values
-	var cordinate = [0,0];
-	var round = 1;
-}
-
 //-----------------------------------------
 function openHatch() {
 	var i = minefield.position.x;
 	var j = minefield.position.y;
+
 	minefield.answerArray[i][j] = minefield.sweeperArray[i][j];
+
+	if(  minefield.sweeperArray[i][j] ==
 }
 
 /**
@@ -344,15 +330,15 @@ function generateSweeperArray() {
 }
 
 /**
- * Check type of variable, and return the variable itself or number 13
+ * Check type of variable, and return the variable itself or BUTTON.REDMINE
  * 
  * @param  variable
- * @return variable|13
+ * @return variable|BUTTON.REDMINE
  */
 function getIndex(variable) {
 	return typeof(variable) === "number" 
 		? variable
-		: 13; // tässä pitää tietää
+		: BUTTON.REDMINE
 }
 
 /**

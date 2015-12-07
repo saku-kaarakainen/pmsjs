@@ -70,6 +70,22 @@ var minefield = {
 	]
 };
 
+var BUTTON = {
+	ZERO     : 0,
+	ONE      : 1,
+	TWO      : 2,
+	THREE    : 3,
+	FOUR     : 4,
+	FIVE     : 5,
+	SIX      : 6,
+	SEVEN    : 7,
+	EIGHT    : 8,
+	BLANK    : 9,
+	FLAG     : 10,
+	QUESTION : 11,
+	MINE     : 12,
+	REDMINE  : 13,
+};
 // these have to do before declaring var game = Phaser.Game...
 var w=minefield.tiles.totalWidth = minefield.tiles.countX * minefield.tiles.sizeInCanvas;
 var h=minefield.tiles.totalHeight = minefield.tiles.countY * minefield.tiles.sizeInCanvas
