@@ -8,7 +8,8 @@ var SELECTED_BUTTON = 0;
 // Because there are custom, a constantly 'changing backgound', 
 // a custom drag and drop handler must be made
 var dnd = {
-	name: ["nolla", "lippu", "kyssari"],
+	name: [],
+	button_id: [],
 	sprite: []
 };
 
@@ -16,6 +17,10 @@ var dynamicFunctions = [];
 var playState = {
 	// preload: function() { game.stage.backgroundColor = 0xffffff; },
 	create : function() {
+		// Initialises dnd object
+		dnd.name = ["nolla", "lippu", "kyssari"];
+		dnd.button_id = [BUTTON.BLANK, BUTTON.FLAG, BUTTON.QUESTION];
+
 		// At the begin there no need anything but background
 
 		minefield.area = game.add.group();
@@ -49,7 +54,7 @@ var playState = {
 			button = game.add.button(x, y, dnd.name[i], selectButton, button);
 
 			// set buttons's properties
-			button.button_id = i;
+			button.button_id = dnd.button_id[i];
 			button.button_name = dnd.name[i];
 			button.button_x = x;
 			button.button_y = halfSizeTile;
@@ -84,7 +89,7 @@ var playState = {
 			||	minefield.position.y >= minefield.tiles.countY ) {
 				// if it's clicked in here, check if it was clicked to toolbar button
 				// console.log("MOUSE_UP on toolbar area");
-			} else if( SELECTED_BUTTON === __BUTTON.FLAG ) {
+			} else if( SELECTED_BUTTON === BUTTON.FLAG ) {
 				// { name : "lippu",   location : "assets/game/flag.png" },       // 10
 				minefield.answerArray[minefield.position.x][minefield.position.y] = BUTTON.FLAG;
 			} else if( SELECTED_BUTTON === BUTTON.QUESTION ) {
@@ -103,7 +108,7 @@ var playState = {
 					);
 				} 
 
-				openHatch();
+				openHatch(	minefield.position.x, minefield.position.y );
 
 				if(minefield.mineArray[minefield.position.x][minefield.position.y] === 1) {
 					gameState.gameOver();
@@ -121,43 +126,34 @@ var playState = {
 	}
 };
 
-//----------------------------------------
-
-// TODO: make a script which opens every blank point around chosen blank point
-
-// this algorithm should run everytime when player hit blank
-function openNeighbours() {
-	var posx = minefield.position.x;
-	var posy = minefield.position.y;
-	var sArray  =minefield.sweeperArray;
-
-	while(1)
-	{
-		checkNeighbours(posx, posy, sArray);
-		break;
-	}
-}
-
 /**
- * Check neighbours (up,down,left and right) and return 
+ * Opens the 'hatch' in selected position on minefield.answerArray. 
+ * If the opened 'hatch' is blank, opens positions around it. Uses recursion.
+ *
+ * @param int x - the x-coordinate in minefield.answerArray
+ * @param int y - the y-coordinate in minefield.answerArray
  */
-function checkNeighbours(x,y, checkArray) {
-	return {
-		"north": typeof(checkArray[x][y-1]) === "number" ? true : false,
-		"east" : typeof(checkArray[x+1][y]) === "number" ? true : false,
-		"south": typeof(checkArray[x][y+1]) === "number" ? true : false,
-		"west" : typeof(checkArray[x-1][y]) === "number" ? true : false
-	};
-}
+function openHatch(x, y) {
+	// Check only if the location is unpressed
+	// (Otherwise been there, done that.)
+	if( typeof(minefield.answerArray[x])    !== "undefined"
+	&&  typeof(minefield.answerArray[x][y]) !== "undefined"
+	&&	minefield.answerArray[x][y] === BUTTON.UNPRESSED ) {
+		minefield.answerArray[x][y] = minefield.sweeperArray[x][y];
 
-//-----------------------------------------
-function openHatch() {
-	var i = minefield.position.x;
-	var j = minefield.position.y;
+		if( typeof(minefield.sweeperArray[x])    !== "undefined"
+		&&  typeof(minefield.sweeperArray[x][y]) !== "undefined"
+		&&  minefield.sweeperArray[x][y] === BUTTON.BLANK ) {
+			var x_array = [x-1,x,x+1];
+			var y_array = [y-1,y,y+1];
 
-	minefield.answerArray[i][j] = minefield.sweeperArray[i][j];
-
-	if(  minefield.sweeperArray[i][j] ==
+			for(var i=0; i<x_array.length; i++) {
+				for(var j=0; j<y_array.length; j++) {
+					openHatch( x_array[i],y_array[j] );
+				}
+			}
+		}
+	}
 }
 
 /**
