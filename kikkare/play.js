@@ -3,7 +3,6 @@ var firstPress = true;
 
 var MOUSE_UP = 0;
 var MOUSE_OVER = -1;  
-var SELECTED_BUTTON = 0;
 
 // Because there are custom, a constantly 'changing backgound', 
 // a custom drag and drop handler must be made
@@ -87,15 +86,25 @@ var playState = {
 			//  first check if the player's position is out of the game area
 			if (	minefield.position.x >= minefield.tiles.countX
 			||	minefield.position.y >= minefield.tiles.countY ) {
+				
 				// if it's clicked in here, check if it was clicked to toolbar button
-				// console.log("MOUSE_UP on toolbar area");
-			} else if( SELECTED_BUTTON === BUTTON.FLAG ) {
-				// { name : "lippu",   location : "assets/game/flag.png" },       // 10
-				minefield.answerArray[minefield.position.x][minefield.position.y] = BUTTON.FLAG;
-			} else if( SELECTED_BUTTON === BUTTON.QUESTION ) {
-				// { name : "kyssari", location : "assets/game/wat.png" },        // 11
-				minefield.answerArray[minefield.position.x][minefield.position.y] = BUTTON.QUESTION;
-			} else if( SELECTED_BUTTON === BUTTON.BLANK ) {
+
+			} else if( BUTTON.SELECTED === BUTTON.FLAG || BUTTON.SELECTED === BUTTON.QUESTION) {
+				// goes here if selected button is flag or question
+
+				// check if selected (flag|question) is in the position
+				if( minefield.answerArray[minefield.position.x][minefield.position.y] === BUTTON.SELECTED ) {
+					// it is, so change it back to original
+					minefield.answerArray[minefield.position.x][minefield.position.y] = BUTTON.UNPRESSED;
+				} else {
+					// it is something else, so change it to question|flag
+					// Check if position is, where we have already answered
+					if(! (minefield.answerArray[minefield.position.x][minefield.position.y] in BUTTON_NUMBERS_ARRAY) ) {
+						minefield.answerArray[minefield.position.x][minefield.position.y] = BUTTON.SELECTED;
+					}
+				}
+
+			} else if( BUTTON.SELECTED === BUTTON.BLANK ) {
 
 				if(firstPress === true) {
 					// on a first press, we must
@@ -110,17 +119,18 @@ var playState = {
 
 				openHatch(	minefield.position.x, minefield.position.y );
 
+				// Check if there's a mine in a current position
 				if(minefield.mineArray[minefield.position.x][minefield.position.y] === 1) {
 					gameState.gameOver();
 				} else {
 					var count = countItemsFromArray([9,10], minefield.answerArray) - minefield.mineCount;
-
+					console.log("count: "+count);
 					if(count === 0) {
 						gameState.win();
 					}
 				}
 			}
-		} // todo: else if mouse right click pressed
+		}
 
 		draw();	
 	}
@@ -139,11 +149,13 @@ function openHatch(x, y) {
 	if( typeof(minefield.answerArray[x])    !== "undefined"
 	&&  typeof(minefield.answerArray[x][y]) !== "undefined"
 	&&	minefield.answerArray[x][y] === BUTTON.UNPRESSED ) {
+
 		minefield.answerArray[x][y] = minefield.sweeperArray[x][y];
 
-		if( typeof(minefield.sweeperArray[x])    !== "undefined"
-		&&  typeof(minefield.sweeperArray[x][y]) !== "undefined"
-		&&  minefield.sweeperArray[x][y] === BUTTON.BLANK ) {
+		// It's impossible to press outside of a game area.
+		// Therefore no need to check if typeof() !== "undefined"
+		if( minefield.sweeperArray[x][y] === BUTTON.BLANK ) {
+
 			var x_array = [x-1,x,x+1];
 			var y_array = [y-1,y,y+1];
 
@@ -208,19 +220,23 @@ function initializeMinefield(width, height, amountOfMines) {
 	// create it first as one dimensional array
 	minefield.mineArray = new Array(minefieldSize);
 
-	var i; // make sure, that i will 'live on' after for -loop, (altough it should live after the loop in javascript)
+	// make sure, that i will 'live on' after for -loop, 
+	// (altough it should live after the loop in javascript)
+	var i;
+
 	// put mines to first positions
 	for(i=0; i<amountOfMines; i++) {
 		minefield.mineArray[i] = 1;
-	} // TODO: verify that var i is correct after the loop
+	}
 
 	// fill the rest with zeroes
 	for(var j=i; j<minefieldSize; j++) {
 		minefield.mineArray[j] = 0;
 	}
 
-	// forever-loop  isn't maybe  the most elegant solution
-	// but it works atleast
+	// forever-loop  isn't maybe the most elegant solution,
+	// but it works atleast.
+	// Loop as long as there's no mine nor mine in a neighbour
 	while(1) {
 		// shuffles the minefield.
 		minefield.mineArray = shuffle(minefield.mineArray);
@@ -230,9 +246,8 @@ function initializeMinefield(width, height, amountOfMines) {
 
 		generateSweeperArray();
 
-		// So this loop works in a way where
-		// if the current position includes a mine
-		// we must shuffle again the array
+		// Check if there's a blank in the current position,
+		// if then break, else loop continues
 		if( minefield.sweeperArray[minefield.position.x][minefield.position.y] === 0 ) break;
 
 		//  In this point the loop hasn't broke,
@@ -254,7 +269,6 @@ function generateSweeperArray() {
 		min : { x : 0, y : 0 },
 		max : { x : minefield.mineArray.length, y : null },
 	};
-
 
 	// Initialise sweeperArray
 	// after the initialising sweeperArray is filled with zeroes,
@@ -338,7 +352,7 @@ function getIndex(variable) {
 }
 
 /**
- * Draws the minefield (game area)
+ * Draws the minefield (game area).
  */
 function draw() {
 	// first draw a minefield
@@ -371,7 +385,7 @@ function draw() {
 	// create player again
 	minefield.player = game.add.sprite(x, y, "player");
 
-	switch ( SELECTED_BUTTON ) {
+	switch ( BUTTON.SELECTED ) {
 		case BUTTON.FLAG: minefield.player.loadTexture("lippu"); break;
 		case BUTTON.QUESTION: minefield.player.loadTexture("kyssari"); break;
 		default:  minefield.player.loadTexture("nolla"); break; // case BUTTON.BLANK
@@ -395,7 +409,7 @@ function over() {
  */
 function selectButton() {
 	// changed selected button to correct one.
-	SELECTED_BUTTON = this.button_id;
+	BUTTON.SELECTED = this.button_id;
 
 	// destroy old sprite
 	minefield.selected.destroy();

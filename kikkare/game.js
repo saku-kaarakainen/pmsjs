@@ -71,6 +71,7 @@ var minefield = {
 };
 
 var BUTTON = {
+	SELECTED  : 0, // BLANK is default
 	BLANK     : 0,
 	ONE       : 1,
 	TWO       : 2,
@@ -86,6 +87,10 @@ var BUTTON = {
 	MINE      : 12,
 	REDMINE   : 13
 };
+
+// 'hardcoded' alues because it's faster and less complicated
+var BUTTON_NUMBERS_ARRAY = Array(0,1,2,3,4,5,6,7,8);
+
 // these have to do before declaring var game = Phaser.Game...
 var w=minefield.tiles.totalWidth = minefield.tiles.countX * minefield.tiles.sizeInCanvas;
 var h=minefield.tiles.totalHeight = minefield.tiles.countY * minefield.tiles.sizeInCanvas
