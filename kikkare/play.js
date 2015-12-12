@@ -68,7 +68,7 @@ var playState = {
 		minefield.player.loadTexture("nolla");
 		minefield.player.visible = false;
 
-		// // gray overlay
+		//// gray overlay
 		// minefield.filters = [game.add.filter("Gray")];
 	},
 	update : function() {
@@ -96,12 +96,8 @@ var playState = {
 				if( minefield.answerArray[minefield.position.x][minefield.position.y] === BUTTON.SELECTED ) {
 					// it is, so change it back to original
 					minefield.answerArray[minefield.position.x][minefield.position.y] = BUTTON.UNPRESSED;
-				} else {
-					// it is something else, so change it to question|flag
-					// Check if position is, where we have already answered
-					if(! (minefield.answerArray[minefield.position.x][minefield.position.y] in BUTTON_NUMBERS_ARRAY) ) {
-						minefield.answerArray[minefield.position.x][minefield.position.y] = BUTTON.SELECTED;
-					}
+				} else if(! (minefield.answerArray[minefield.position.x][minefield.position.y] in BUTTON_NUMBERS_ARRAY) ) { // Check if position is, where we have already answered			
+					minefield.answerArray[minefield.position.x][minefield.position.y] = BUTTON.SELECTED;
 				}
 
 			} else if( BUTTON.SELECTED === BUTTON.BLANK ) {
@@ -119,8 +115,13 @@ var playState = {
 
 				openHatch(	minefield.position.x, minefield.position.y );
 
-				// Check if there's a mine in a current position
-				if(minefield.mineArray[minefield.position.x][minefield.position.y] === 1) {
+				// console.log("minefield.sweeperArray[minefield.position.x][minefield.position.y]="+minefield.sweeperArray[minefield.position.x][minefield.position.y]);
+				// esim:
+				// minefield.sweeperArray[minefield.position.x][minefield.position.y] = "x11";
+
+				// Check if there's a mine in a current position or have user placed a flag there
+				if(minefield.mineArray[minefield.position.x][minefield.position.y] === 1 
+				&& minefield.answerArray[minefield.position.x][minefield.position.y] !== BUTTON.FLAG ) {
 					gameState.gameOver();
 				} else {
 					var count = countItemsFromArray([9,10], minefield.answerArray) - minefield.mineCount;
@@ -144,12 +145,11 @@ var playState = {
  * @param int y - the y-coordinate in minefield.answerArray
  */
 function openHatch(x, y) {
-	// Check only if the location is unpressed
-	// (Otherwise been there, done that.)
 	if( typeof(minefield.answerArray[x])    !== "undefined"
 	&&  typeof(minefield.answerArray[x][y]) !== "undefined"
-	&&	minefield.answerArray[x][y] === BUTTON.UNPRESSED ) {
-
+	&& (minefield.answerArray[x][y] === BUTTON.UNPRESSED
+	||  minefield.answerArray[x][y] === BUTTON.QUESTION) ) {
+		// if go here location x,y oontains BUTTON.UNPRESSED or BUTTON.QUESTION
 		minefield.answerArray[x][y] = minefield.sweeperArray[x][y];
 
 		// It's impossible to press outside of a game area.

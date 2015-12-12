@@ -38,7 +38,7 @@ var minefield = {
 	tiles : {
 		countX : 9,
 		countY : 9,
-		sizeInCanvas : 16, // it's square
+		sizeInCanvas : 16, // it's square ( width:16,height:16 )
 		totalWidth : null,
 		totalHeight: null
 	},
@@ -88,7 +88,7 @@ var BUTTON = {
 	REDMINE   : 13
 };
 
-// 'hardcoded' alues because it's faster and less complicated
+// 'hardcoded' values because it's faster and less complicated
 var BUTTON_NUMBERS_ARRAY = Array(0,1,2,3,4,5,6,7,8);
 
 // these have to do before declaring var game = Phaser.Game...
@@ -105,17 +105,14 @@ var game = new Phaser.Game(
 // Use this for scene navigation
 var gameState = {
 	newgame: function() {
-		// this array will initialises with value 9
-		// because the correct sprites will pick by minefield.sprites' index
-		// and the 9 indicate there sprite "blank" 
-		minefield.answerArray = initialize2DArray(minefield.tiles.countX,minefield.tiles.countY, 9);
+		minefield.answerArray = initialize2DArray(minefield.tiles.countX,minefield.tiles.countY, BUTTON.UNPRESSED);
 		minefield.freeSpaceLeft = (minefield.tiles.countX*minefield.tiles.countY) - minefield.mineCount;
-		firstPress = true;
+		firstPress = true; // This makes that, on first press, mine locations will be randomized
 
 		game.state.start("play");
 	},
 	restart: function() {
-		minefield.answerArray = initialize2DArray(minefield.tiles.countX,minefield.tiles.countY, 9);
+		minefield.answerArray = initialize2DArray(minefield.tiles.countX,minefield.tiles.countY, BUTTON.UNPRESSED);
 		game.state.start("play");
 	},
 	menu: function() {
@@ -251,15 +248,15 @@ function centerOption(buttons, callbackArray) {
 	buttonGroup.x.center = (buttonGroup.x.end - buttonGroup.x.start) / 2;
 	buttonGroup.y.center = (buttonGroup.y.end - buttonGroup.y.start) / 2;
 
-	var x_correction = gameWdithCenter  - buttonGroup.x.center;
+	var x_correction = gameWdithCenter - buttonGroup.x.center;
 	var y_correction = gameHeightCenter - buttonGroup.y.center;
 
 	buttonGroup.x.start	+= x_correction;
-	buttonGroup.x.center 	+= x_correction;
-	buttonGroup.x.end	+= x_correction;
+	buttonGroup.x.center += x_correction;
+	buttonGroup.x.end += x_correction;
 	buttonGroup.y.start	+= y_correction;
-	buttonGroup.y.center 	+= y_correction;
-	buttonGroup.y.end 	+= y_correction;
+	buttonGroup.y.center += y_correction;
+	buttonGroup.y.end += y_correction;
 
 	x_correction = null;
 	y_correction = null;
