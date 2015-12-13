@@ -31,18 +31,95 @@ var buttons = [
 	{ name: "new_game",     location: "assets/buttons/new_game.png",     categories: { "win":0, "gameover":0, "menu":0 } },
 	{ name: "options",      location: "assets/buttons/options.png",      categories: { "menu":1 } },
 	{ name: "restart_game", location: "assets/buttons/restart_game.png", categories: { "gameover":1 } },
-	{ name: "statistics",   location: "assets/buttons/statistics.png",   categories: { "menu":2 } } 
+	{ name: "statistics",   location: "assets/buttons/statistics.png",   categories: { "menu":2 } },
+	// sub-scenes of menu
+	{ name: "beginner",		location: "assets/buttons/beginner.png",	 categories: { "option":0} },
+	{ name: "intermediate",	location: "assets/buttons/intermediate.png", categories: { "option":1} },
+	{ name: "advanced",		location: "assets/buttons/advanced.png",	 categories: { "option":2} },
+	{ name: "custom",		location: "assets/buttons/custom.png",	 	 categories: { "option":3} }
 ];
+
+// --------------------------------
+//        CLASS DIFFICULTY
+// --------------------------------
+
+// define var Difficulty as an object
+var Difficulty = {};
+
+// Width this constructor, every mine have to set
+Difficulty.create = function(name, width, height, mines) {
+	this.name = null;
+	this.width = null;
+	this.height = null;
+	this.mines = null;
+
+	switch( arguments.length ) {
+		case 0: break;
+		case 1: this.name = name break;;
+		case 2:
+		case 3:
+			// Throw an exception. Programmer might have set wrong amount of arguments
+			InvalidParameterCountException("Check your arguments.");
+			break;
+		default:  // extra arguments will be ignored
+			this.name = name;
+			this.width = width;
+			this.height = height;
+			this.mines = mines;
+	}
+
+};
+
+Difficulty.beginner 	= new Difficulty.create("beginner", 9, 9, 10);
+Difficulty.intermediate	= new Difficulty.create("intermediate", 16, 16, 16);
+Difficulty.advanced 	= new Difficulty.create("advanced", 30, 16, 99);
+Difficulty.custom 		= new Difficulty.create("custom");
+Difficulty.current 		= new Difficulty.create();
+
+// Set default difficulty to beginner
+Difficulty.current = Difficulty.beginner;
+Difficulty.getCurrent = function() { return Difficulty.current; }
+
+Difficulty.changeTo = {
+	beginner: function() {
+		Difficulty.current = Difficulty.beginner;
+	},
+	intermediate: function() {
+
+	},
+	advanced: function() {},
+	custom: function() {}
+};
+
+// --------------------------------
+//        CLASS DIFFICULTY
+// --------------------------------
+
+
+/*
+	// USE CASES OF DIFFICULTY
+
+	// get width used by beginner
+	var width = difficulty.beginner.width;
+
+
+	// chhange difficulty to beginner
+	difficulty.changeTo.beginner();
+
+	// get current difficulty
+	difficulty.getCurrent();
+*/
+
 
 var minefield = {
 	tiles : {
-		countX : 9,
-		countY : 9,
+		countX : difficulty.current.width,
+		countY : difficulty.current.height,
 		sizeInCanvas : 16, // it's square ( width:16,height:16 )
 		totalWidth : null,
 		totalHeight: null
 	},
-	mineCount : 10,
+	mineCount : difficulty.current.mines,
 	mineArray : null, // TODO: remove this
 	sweeperArray : null,
 	answerArray : null,
@@ -70,6 +147,7 @@ var minefield = {
 	]
 };
 
+// TODO: button is incorrect name, choose better one.
 var BUTTON = {
 	SELECTED  : 0, // BLANK is default
 	BLANK     : 0,
