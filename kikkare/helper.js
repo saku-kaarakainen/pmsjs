@@ -1,5 +1,6 @@
 // helper.js
 // Contains useful general functions
+// My aim for commenting is to as compatible as possible with JSDoc ( http://usejsdoc.org/ )
 
 /**
  * Generate SQL-compatible string timestamp
@@ -21,20 +22,21 @@ function dateToSQLTimestamp(date) {
  * Custom console.log(). Puts timestamp before logging to console.log
  */
 if( window.console && console.log ) {
-	var tmp = console.log;
+	// This horrible name to prevent accentally use
+	var __tmp_console_log__ = console.log;
 
 	console.log = function() {
 		var date = new Date();
 		Array.prototype.unshift.call(arguments, "["+dateToSQLTimestamp(date)+"]: ");
-		tmp.apply(this, arguments);
+		__tmp_console_log__.apply(this, arguments);
 	};
 }
 
 
 /**
  * Invalid paramer exeption. TODO: this is clunky, make it better
- *
- * @param string message
+ * @constructor
+ * @param {string} message
  */
 function InvalidParameterException(message) {
 	this.message = message;
@@ -43,13 +45,24 @@ function InvalidParameterException(message) {
 }
 
 /**
+ * Invalid paramer count exeption. TODO: this is clunky, make it better
+ * @constructor
+ * @param {string} message
+ */
+function InvalidParameterCountException(message) {
+	this.message = message;
+	this.name = "InvalidParameterCountException";
+	alert(this.name+"\n\n"+this.message);
+}
+
+/**
  * Initialises 2D array.
  * 
- * @param  int   i_length   - length of an array
- * @param  int   j_lenght   - length of a sub array
- * @param  int   init_value - (optional). Init value
- * @return array            - generated 2D array
- * @throws InvalidParameterException
+ * @param  {int}   i_length   - length of an array
+ * @param  {int}   j_lenght   - length of a sub array
+ * @param  {int}   init_value - (optional). Init value
+ * @return {array}            - generated 2D array
+ * @throws {InvalidParameterException}
  */
 function initialize2DArray(i_length, j_length, init_value) {
 	if(typeof(j_length) === "undefined") {
@@ -76,8 +89,8 @@ function initialize2DArray(i_length, j_length, init_value) {
  * Shuffles an array. Uses Fisher-Yates Shuffle
  * https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
  *
- * @param array array - An array which you want to be shuffled
- * @return array      - shuffled array
+ * @param  {array} array - An array which you want to be shuffled
+ * @return {array}      - shuffled array
  */
 function shuffle(array) {
 	var currentIndex = array.length, temporaryValue, randomIndex;
@@ -102,9 +115,9 @@ function shuffle(array) {
  * Convert one-dimensional array to 2d array.
  * https://stackoverflow.com/questions/4492385/how-to-convert-simple-array-into-two-dimensional-arraymatrix-in-javascript-or
  * 
- * @param  array list               - the array to to be converted
- * @param  int   elementPerSubArray - Number of elements in a sub array
- * @return array 					- two-dimensional array
+ * @param  {array} list               	- the array to to be converted
+ * @param  {int}   elementsPerSubArray 	- Number of elements in a sub array
+ * @return {array} 						- two-dimensional array
  */
 function listToMatrix(list, elementsPerSubArray) {
 	var matrix = [], i, k;
@@ -124,9 +137,9 @@ function listToMatrix(list, elementsPerSubArray) {
  * Find an element from the array. This would be better solution:
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
  *
- * @param  array array   - An array from where you are looking the element
- * @param  var   element - The element that you want to find
- * @return bool  true    - if element was found, else false
+ * @param  {array} array   - An array from where you are looking the element
+ * @param  {var}   element - The element that you want to find
+ * @return {bool}  true    - if element was found, else false
  */
 function findFromArray(array, element) {
 	for(var i in array){
@@ -141,9 +154,9 @@ function findFromArray(array, element) {
 /**
  * Count numbers and objects in array. Uses recursion.
  *
- * @param  var   items - the items you are counting
- * @param  array array - the array where you are looking for the items
- * @return int         - Count of items
+ * @param  {var}   items - the items you are counting
+ * @param  {array} array - the array where you are looking for the items
+ * @return {int}         - Count of items
  */
 function countItemsFromArray(items, array) {
 	var count=0;
