@@ -55,7 +55,7 @@ Difficulty.create = function(name, width, height, mines) {
 
 	switch( arguments.length ) {
 		case 0: break;
-		case 1: this.name = name break;;
+		case 1: this.name = name; break;
 		case 2:
 		case 3:
 			// Throw an exception. Programmer might have set wrong amount of arguments
@@ -113,13 +113,13 @@ Difficulty.changeTo = {
 
 var minefield = {
 	tiles : {
-		countX : difficulty.current.width,
-		countY : difficulty.current.height,
+		countX : Difficulty.current.width,
+		countY : Difficulty.current.height,
 		sizeInCanvas : 16, // it's square ( width:16,height:16 )
 		totalWidth : null,
 		totalHeight: null
 	},
-	mineCount : difficulty.current.mines,
+	mineCount : Difficulty.current.mines,
 	mineArray : null, // TODO: remove this
 	sweeperArray : null,
 	answerArray : null,
