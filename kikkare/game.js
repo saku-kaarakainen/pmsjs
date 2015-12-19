@@ -1,14 +1,14 @@
 /**
   *  Dim object
   *
-  * @var start
-  * @var center
-  * @var end
+  * @param {int} start
+  * @param {int} center
+  * @param {int} end
   */
-var Dim = function() { 
-	this.start=0;
-	this.center=0;
-	this.end=0;
+var Dim = function(start, center, end) { 
+	this.start = start || 0;
+	this.center = center || 0;
+	this.end= end || 0;
 };
 
 /**
@@ -19,8 +19,10 @@ var Dim = function() {
   */
 var Dimension = function(x, y) {
 	// public objects x and y
-	this.x = typeof(x) === "undefined" ? { start:0, center:0, end:0 } : x;
-	this.y = typeof(y) === "undefined" ? { start:0, center:0, end:0 } : y;
+	// this.x = typeof(x) === "undefined" ? { start:0, center:0, end:0 } : x;
+	// this.y = typeof(y) === "undefined" ? { start:0, center:0, end:0 } : y;
+	this.x = x || { start:0, center:0, end:0 };
+	this.y = y || { start:0, center:0, end:0 };
 };
 
 // this is an array that you can loop it easily
@@ -33,10 +35,10 @@ var buttons = [
 	{ name: "restart_game", location: "assets/buttons/restart_game.png", categories: { "gameover":1 } },
 	{ name: "statistics",   location: "assets/buttons/statistics.png",   categories: { "menu":2 } },
 	// sub-scenes of menu
-	{ name: "beginner",		location: "assets/buttons/beginner.png",	 categories: { "option":0} },
-	{ name: "intermediate",	location: "assets/buttons/intermediate.png", categories: { "option":1} },
-	{ name: "advanced",		location: "assets/buttons/advanced.png",	 categories: { "option":2} },
-	{ name: "custom",		location: "assets/buttons/custom.png",	 	 categories: { "option":3} }
+	{ name: "beginner",		location: "assets/buttons/beginner.png",	 categories: { "menu-option":0} },
+	{ name: "intermediate",	location: "assets/buttons/intermediate.png", categories: { "menu-option":1} },
+	{ name: "advanced",		location: "assets/buttons/advanced.png",	 categories: { "menu-option":2} },
+	{ name: "custom",		location: "assets/buttons/custom.png",	 	 categories: { "menu-option":3} }
 ];
 
 // --------------------------------
@@ -73,49 +75,96 @@ Difficulty.create = function(name, width, height, mines) {
 Difficulty.beginner 	= new Difficulty.create("beginner", 9, 9, 10);
 Difficulty.intermediate	= new Difficulty.create("intermediate", 16, 16, 16);
 Difficulty.advanced 	= new Difficulty.create("advanced", 30, 16, 99);
-Difficulty.custom 		= new Difficulty.create("custom");
-Difficulty.current 		= new Difficulty.create();
+Difficulty.custom 	= new Difficulty.create("custom");
+Difficulty.current 	= new Difficulty.create();
 
 // Set default difficulty to beginner
 Difficulty.current = Difficulty.beginner;
 Difficulty.getCurrent = function() { return Difficulty.current; }
+Difficulty.current.setWidth = function(width) { this.width = width; };
+Difficulty.current.setHeight = function(height) {this.height = height; };
+Difficulty.current.setMines = function (mines) { this.mines = mines; };
 
 Difficulty.changeTo = {
-	beginner: function() {
-		Difficulty.current = Difficulty.beginner;
-	},
-	intermediate: function() {
+    // TODO: Is it possible to make simpler solution? 
+    // (that to add new difficulty, you'd have to add stuff to only on one location)
+    beginner: function() {
+        Difficulty.current = Difficulty.beginner;
+        this.minefield("beginner");
+    },
+    intermediate: function() {
+        Difficulty.current = Difficulty.intermediate;
+        this.minefield("intermediate");
+    },
+    advanced: function() {
+        Difficulty.current = Difficulty.advanced;
+        this.minefield("advanced");
+    },
+    // TODO:  is it possible to improve this (better solutions for those setters)?
+    custom: function(width, height, mines) {
+        if( typeof(mines) === "undefined") {
+            throw new InvalidParameterCountException("There must be 3 arguments.");
+        } else {
+            Difficulty.current.setWidth(width);
+            Difficulty.current.setHeight(height);
+            Difficulty.current.setMines(mines);
 
-	},
-	advanced: function() {},
-	custom: function() {}
+        }
+    },
+    minefield: function(difficulty) {
+        switch( difficulty ) {
+            case "beginner": 
+            case "intermediate": 
+            case "advanced": 
+            case "custom": 
+            	 updateMinefieldTile();
+                minefield.mineCount = Difficulty.current.mines;
+                game.width = minefield.tiles.totalWidth + (2* minefield.tiles.sizeInCanvas);// add some space for toolbar
+	 game.height = minefield.tiles.totalHeight;
+                break;
+            default:
+                 throw new InvalidParameterException("Check your parameter.");
+        }
+    }
 };
 
 // --------------------------------
 //        CLASS DIFFICULTY
 // --------------------------------
 
+/**
+ * one argument: arg1 = sizeInCanvas
+ * two arguments: arg1 = countX, arg2 = countY
+ * three: check setTile
+ */
+function updateMinefieldTile(arg1 ,arg2, arg3) {
+	switch ( arguments.length ) {
+		case 0: // No arguments
+			setMinefieldTile( Difficulty.current.width,  Difficulty.current.height, minefield.tiles.sizeInCanvas );
+			break;
+		case 1: // one argument ( arg1 = sizeInCanvas )
+			setMinefieldTile( Difficulty.current.width, Difficulty.current.height, arg1 );
+			break;
+		case 2: //two arguments
+			setMinefieldTile(arg1, arg2,  minefield.tiles.sizeInCanvas); break;
+		default: // rest will be ignore
+			setMinefieldTile(arg1, arg2, arg3);
+	}
+}
 
-/*
-	// USE CASES OF DIFFICULTY
-
-	// get width used by beginner
-	var width = difficulty.beginner.width;
-
-
-	// chhange difficulty to beginner
-	difficulty.changeTo.beginner();
-
-	// get current difficulty
-	difficulty.getCurrent();
-*/
-
+function setMinefieldTile(countX, countY, sizeInCanvas) {
+	minefield.tiles.countX = countX;
+	minefield.tiles.countY = countY;
+	minefield.tiles.sizeInCanvas = sizeInCanvas;
+	minefield.tiles.totalWidth = countX * sizeInCanvas;
+	minefield.tiles.totalHeight = countY * sizeInCanvas;
+}
 
 var minefield = {
-	tiles : {
+	tiles: {
 		countX : Difficulty.current.width,
 		countY : Difficulty.current.height,
-		sizeInCanvas : 16, // it's square ( width:16,height:16 )
+		sizeInCanvas : 16, 
 		totalWidth : null,
 		totalHeight: null
 	},

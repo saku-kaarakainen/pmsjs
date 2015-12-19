@@ -25,12 +25,12 @@ var menuState = {
 	option: function() {
 		console.log("menuState.option called");
 
-		var callbacks = [
-			// Beginner
-			function() {
-
-			}
-		];
+		centerOption( filterButtonsByCategory("menu-option"), [
+			function() { Difficulty.changeTo.beginner(); },
+			function() { Difficulty.changeTo.intermediate(); },
+			function() { Difficulty.changeTo.advanced(); },
+			function() { alert("Not implemented, may some day..."); }
+		]);
 	},
 	stats: function() {
 		console.log("menuState.stats called");
